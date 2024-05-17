@@ -1,0 +1,43 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+*.egg
+*.egg-info/
+dist/
+build/
+*.pyc
+
+# Flask specific
+instance/
+# Add later *.db
+# Add later *.sqlite3
+
+# Environment variables
+.env
+
+# Logs
+*.log
+
+# VSCode specific files
+.vscode/
+*.code-workspace
+
+# MacOS specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.AppleDouble
+.LSOverride
+Icon
+._.DS_Store
