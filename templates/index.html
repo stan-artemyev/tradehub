@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Portfolio
+{% endblock %}
+
+{% block main %}
+    <h2>Portfolio</h2>
+    <table class="table table-hover">
+        <thead class="table-danger">
+            <tr>
+                <th>Symbol</th>
+                <th>Shares</th>
+                <th>Price</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+        <!-- Loop through the DB to display stocks in this table -->
+            {% for stock in stocks %}
+                <tr>
+                    <td>
+                        {{ stock.symbol }}
+                    </td>
+                    <td>
+                        {{ stock.sum }}
+                    </td>
+                    <td>
+                        {{ stock.price }}
+                    </td>
+                    <td>
+                        {{ stock.total }}
+                    </td>
+                </tr>
+            {% endfor %}
+            <tr class="table-primary">
+                <td></td>
+                <td></td>
+                <td>
+                    <b>CASH</b>
+                </td>
+                <td>
+                    {{ cash }}
+                </td>
+            </tr>
+            <tr class="table-success">
+                <td></td>
+                <td></td>
+                <td>
+                    <b>TOTAL</b>
+                </td>
+                <td>
+                    {{ total }}
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    History
+{% endblock %}
+
+{% block main %}
+    <h2>History</h2>
+    <table class="table table-striped">
+        <thead class="table-danger">
+            <tr>
+                <th style="text-align: left;">Symbol</th>
+                <th>Shares</th>
+                <th>Price</th>
+                <th>Transacted</th>
+            </tr>
+        </thead>
+        <tbody>
+        <!-- Loop through the DB to display stocks in this table -->
+            {% for stock in stocks %}
+                <tr>
+                    <td style="text-align: left;">
+                        {{ stock.symbol }}
+                    </td>
+                    <td>
+                        {{ stock.amount }}
+                    </td>
+                    <td>
+                        {{ stock.price | usd }}
+                    </td>
+                    <td>
+                        {{ stock.date_time}}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
