@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Python Virual Env
+/cs50_project_venv
+
 # Distribution / packaging
 .Python
 env/
@@ -43,3 +46,4 @@ flask_session/
 Icon
 ._.DS_Store
 
+finance.db
