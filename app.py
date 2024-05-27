@@ -5,11 +5,17 @@ from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
+import yfinance as yf
 
-from helpers import apology, login_required, lookup, usd
+from helpers import apology, login_required, lookup, usd, get_data
 
 # Configure application
 app = Flask(__name__)
+
+# Enable template auto-reloading when there's a change in code
+app.config["TEMPLATES_AUTO_RELOAD"] = True
+# Disable caching for static files
+app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 
 # Custom filter
 app.jinja_env.filters["usd"] = usd
@@ -227,9 +233,15 @@ def quote():
         elif lookup(symbol) == None:
             return apology("invalid symbol")
 
-        # Provide quoted stock price
-        price = usd(lookup(symbol)["price"])
-        return render_template("quoted.html", price=price, symbol=symbol.upper())
+        
+        # Create an empty dictionary to store stock data
+        stock_data = {}
+        
+        # Call the get_data() function to get stock data
+        stock_data = get_data(symbol)
+        price = usd(stock_data["current_price"])
+        name = stock_data["company_name"]
+        return render_template("quoted.html", price=price, symbol=symbol.upper(), name=name)
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -403,13 +415,3 @@ def change_password():
 
         # Redirect user to home page
         return redirect("/")
-
-
-if __name__ == "__main__":
-    # Load environment variables
-    host = os.getenv("HOST", "0.0.0.0")
-    port = os.getenv("PORT", 5000)
-    debug = os.getenv("DEBUG", True)
-
-    # Run the Flask app
-    app.run(host=host, port=port, debug=debug)
