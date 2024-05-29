@@ -10,4 +10,127 @@
             A share of {{ symbol }} ({{ name }}) costs {{ price }}.
         <p>
     </div>
+
+    <h5>Market details</h5>
+
+    <div class="container d-flex flex-row">        
+        <div class="container-sm pt-3">
+            <table class="table table-hover">          
+                <tbody>
+                    <tr>
+                        <th class="text-start">
+                            Previous Close
+                        </th>
+                        <td>
+                            {{ previous_close }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-start">
+                            Open
+                        </th>
+                        <td>
+                            {{ open_price }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-start">
+                            Bid
+                        </th>
+                        <td>
+                            {{ bid_price }} x {{ bid_size }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-start">
+                            Ask
+                        </th>
+                        <td>
+                            {{ ask_price }} x {{ ask_size }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-start">
+                            High
+                        </th>
+                        <td>
+                            {{ day_high }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-start">
+                            Low
+                        </th>
+                        <td>
+                            {{ day_low }}
+                        </td>
+                    </tr>                    
+                </tbody>
+            </table>
+        </div>
+
+        <div class="container-sm pt-3">
+            <table class="table table-hover">          
+                <tbody>
+                    <tr>
+                        <th class="text-start">
+                            Market cap
+                        </th>
+                        <td>
+                            {{ market_cap }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-start">
+                            P/E ration
+                        </th>
+                        <td>
+                            {{ pe }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-start">
+                            52-week high
+                        </th>
+                        <td>
+                            {{ fifty_two_week_high }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-start">
+                            52-week low
+                        </th>
+                        <td>
+                            {{ fifty_two_week_low }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-start">
+                            Volume
+                        </th>
+                        <td>
+                            {{ volume }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-start">
+                            Average volume
+                        </th>
+                        <td>
+                            {{ average_volume }}
+                        </td>
+                    </tr>    
+                    <tr>
+                        <th class="text-start">
+                            Yield
+                        </th>
+                        <td>
+                            {{ dividend_yield }}
+                        </td>
+                    </tr>                
+                </tbody>
+            </table>
+        </div>
+            
+    </div>
 {% endblock %}

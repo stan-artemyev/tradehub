@@ -7,7 +7,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 import yfinance as yf
 
-from helpers import apology, login_required, lookup, usd, get_data
+from helpers import apology, login_required, lookup, usd, get_data#, custom_humanize
 
 # Configure application
 app = Flask(__name__)
@@ -240,8 +240,28 @@ def quote():
         # Call the get_data() function to get stock data
         stock_data = get_data(symbol)
         price = usd(stock_data["current_price"])
+        previous_close = usd(stock_data["previous_close"])
+        open_price = usd(stock_data["open_price"])
+        volume = stock_data["volume"]
+        average_volume = stock_data["average_volume"]
+        market_cap = stock_data["market_cap"]
+        company_name = stock_data["company_name"]
+        dividend_yield = f"{(stock_data["dividend_yield"] * 100):.2f}%"
+        pe = stock_data["pe"]
+        fifty_two_week_high = usd(stock_data["fifty_two_week_high"])
+        fifty_two_week_low = usd(stock_data["fifty_two_week_low"])
+        bid_price = usd(stock_data["bid_price"])
+        bid_size = stock_data["bid_size"]
+        ask_price = usd(stock_data["ask_price"])
+        ask_size = stock_data["ask_size"]
+        day_high = usd(stock_data["day_high"])
+        day_low = usd(stock_data["day_low"])
         name = stock_data["company_name"]
-        return render_template("quoted.html", price=price, symbol=symbol.upper(), name=name)
+        
+        return render_template("quoted.html", price=price, previous_close=previous_close, symbol=symbol.upper(), name=name, open_price=open_price,
+                               volume=volume, average_volume=average_volume, market_cap=market_cap, dividend_yield=dividend_yield, pe=pe,
+                               fifty_two_week_high=fifty_two_week_high, fifty_two_week_low=fifty_two_week_low, bid_price=bid_price,
+                               bid_size=bid_size, ask_price=ask_price, ask_size=ask_size, day_high=day_high, day_low=day_low)
 
 
 @app.route("/register", methods=["GET", "POST"])

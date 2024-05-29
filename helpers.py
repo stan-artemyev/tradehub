@@ -74,17 +74,27 @@ def get_data(symbol):
         current_price = round(stock_info["currentPrice"], 2)
         previous_close = round(stock_info["previousClose"], 2)
         open_price = round(stock_info["open"], 2)
+        day_high = round(stock_info["dayHigh"], 2)
+        day_low = round(stock_info["dayLow"], 2)
+        bid_price = round(stock_info["bid"], 2)
+        bid_size = stock_info["bidSize"]
+        ask_price = round(stock_info["ask"], 2)
+        ask_size = stock_info["askSize"]
         volume = stock_info["volume"]
         average_volume = stock_info["averageVolume"]
         market_cap = stock_info["marketCap"]
         company_name = stock_info["longName"]
         dividend_yield = stock_info["dividendYield"]
         pe = stock_info["trailingPE"]
+        fifty_two_week_high = round(stock_info["fiftyTwoWeekHigh"], 2)
+        fifty_two_week_low = round(stock_info["fiftyTwoWeekLow"], 2)
         
         if not None in (current_price, previous_close, open_price, volume, 
                         average_volume, market_cap, company_name, dividend_yield, pe):
             return {"current_price": current_price, "previous_close": previous_close, "open_price": open_price, "volume": volume,
-                    "average_volume": average_volume, "market_cap": market_cap, "company_name": company_name, "dividend_yield": dividend_yield, "pe": pe}
+                    "average_volume": average_volume, "market_cap": market_cap, "company_name": company_name, "dividend_yield": dividend_yield,
+                    "pe": pe, "fifty_two_week_high": fifty_two_week_high, "fifty_two_week_low": fifty_two_week_low, "bid_price": bid_price,
+                    "bid_size": bid_size, "ask_price": ask_price, "ask_size": ask_size, "day_high": day_high, "day_low": day_low}
         else:
             logging.warning(f"Missing data for symbol: {symbol}")
             return None
@@ -132,3 +142,26 @@ def lookup(symbol):
 def usd(value):
     """Format value as USD."""
     return f"${value:,.2f}"
+
+# def custom_humanize(number):
+#     """
+#     Convert a large number to a short version with K, M, B, T suffixes.
+    
+#     Args:
+#     number (float): The number to convert.
+    
+#     Returns:
+#     str: The converted number as a string with the appropriate suffix.
+#     """
+#     # Define suffixes for large numbers
+#     suffixes = ['', 'K', 'M', 'B', 'T']
+#     magnitude = 0
+    
+#     # Loop to divide the number and increase the magnitude
+#     while abs(number) >= 1000 and magnitude < len(suffixes) - 1:
+#         magnitude += 1
+#         number /= 1000.0
+    
+#     # Format the number with 2 decimal places and append the suffix
+#     return f"{number:.2f}{suffixes[magnitude]}"
+
