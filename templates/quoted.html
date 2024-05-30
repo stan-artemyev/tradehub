@@ -11,7 +11,7 @@
         <p>
     </div>
 
-    <h5>Market details</h5>
+    <h4>Market details</h4>
 
     <div class="container d-flex flex-row">        
         <div class="container-sm pt-3">
@@ -51,7 +51,7 @@
                     </tr>
                     <tr>
                         <th class="text-start">
-                            High
+                            Day High
                         </th>
                         <td>
                             {{ day_high }}
@@ -59,12 +59,20 @@
                     </tr>
                     <tr>
                         <th class="text-start">
-                            Low
+                            Day Low
                         </th>
                         <td>
                             {{ day_low }}
                         </td>
-                    </tr>                    
+                    </tr>
+                    <tr>
+                        <th class="text-start">
+                            Exchange
+                        </th>
+                        <td>
+                            {{ exchange }}
+                        </td>
+                    </tr>                     
                 </tbody>
             </table>
         </div>
@@ -74,7 +82,7 @@
                 <tbody>
                     <tr>
                         <th class="text-start">
-                            Market cap
+                            Market Cap
                         </th>
                         <td>
                             {{ market_cap }}
@@ -82,7 +90,7 @@
                     </tr>
                     <tr>
                         <th class="text-start">
-                            P/E ration
+                            P/E Ration
                         </th>
                         <td>
                             {{ pe }}
@@ -90,7 +98,7 @@
                     </tr>
                     <tr>
                         <th class="text-start">
-                            52-week high
+                            52-week High
                         </th>
                         <td>
                             {{ fifty_two_week_high }}
@@ -98,7 +106,7 @@
                     </tr>
                     <tr>
                         <th class="text-start">
-                            52-week low
+                            52-week Low
                         </th>
                         <td>
                             {{ fifty_two_week_low }}
@@ -114,7 +122,7 @@
                     </tr>
                     <tr>
                         <th class="text-start">
-                            Average volume
+                            Average Volume
                         </th>
                         <td>
                             {{ average_volume }}

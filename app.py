@@ -7,7 +7,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 import yfinance as yf
 
-from helpers import apology, login_required, lookup, usd, get_data#, custom_humanize
+from helpers import apology, login_required, lookup, usd, get_data, custom_humanize, exchange_names
 
 # Configure application
 app = Flask(__name__)
@@ -27,6 +27,9 @@ Session(app)
 
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///finance.db")
+
+# Define username as a global variable
+username = "user"
 
 
 @app.after_request
@@ -69,7 +72,7 @@ def index():
     total = usd(total + user_cash)
 
     return render_template(
-        "index.html", stocks=stocks, cash=usd(user_cash), total=total
+        "index.html", username=username, stocks=stocks, cash=usd(user_cash), total=total
     )
 
 
@@ -192,6 +195,10 @@ def login():
 
         # Remember which user has logged in
         session["user_id"] = rows[0]["id"]
+        
+        # Assign the username to the global variable
+        global username
+        username = request.form.get("username")
 
         # Redirect user to home page
         return redirect("/")
@@ -242,12 +249,11 @@ def quote():
         price = usd(stock_data["current_price"])
         previous_close = usd(stock_data["previous_close"])
         open_price = usd(stock_data["open_price"])
-        volume = stock_data["volume"]
-        average_volume = stock_data["average_volume"]
-        market_cap = stock_data["market_cap"]
-        company_name = stock_data["company_name"]
+        volume = custom_humanize(stock_data["volume"])
+        average_volume = custom_humanize(stock_data["average_volume"])
+        market_cap = custom_humanize(stock_data["market_cap"])        
         dividend_yield = f"{(stock_data["dividend_yield"] * 100):.2f}%"
-        pe = stock_data["pe"]
+        pe = round(stock_data["pe"], 2)
         fifty_two_week_high = usd(stock_data["fifty_two_week_high"])
         fifty_two_week_low = usd(stock_data["fifty_two_week_low"])
         bid_price = usd(stock_data["bid_price"])
@@ -256,12 +262,15 @@ def quote():
         ask_size = stock_data["ask_size"]
         day_high = usd(stock_data["day_high"])
         day_low = usd(stock_data["day_low"])
+        # Get the exchange name from exchange code
+        exchange_name = exchange_names.get(stock_data["exchange"], "")
         name = stock_data["company_name"]
         
-        return render_template("quoted.html", price=price, previous_close=previous_close, symbol=symbol.upper(), name=name, open_price=open_price,
-                               volume=volume, average_volume=average_volume, market_cap=market_cap, dividend_yield=dividend_yield, pe=pe,
-                               fifty_two_week_high=fifty_two_week_high, fifty_two_week_low=fifty_two_week_low, bid_price=bid_price,
-                               bid_size=bid_size, ask_price=ask_price, ask_size=ask_size, day_high=day_high, day_low=day_low)
+        return render_template("quoted.html", price=price, previous_close=previous_close, open_price=open_price,
+                               volume=volume, average_volume=average_volume, market_cap=market_cap, dividend_yield=dividend_yield,
+                               pe=pe, fifty_two_week_high=fifty_two_week_high, fifty_two_week_low=fifty_two_week_low, bid_price=bid_price,
+                               bid_size=bid_size, ask_price=ask_price, ask_size=ask_size, day_high=day_high, day_low=day_low,
+                               exchange=exchange_name, name=name)
 
 
 @app.route("/register", methods=["GET", "POST"])

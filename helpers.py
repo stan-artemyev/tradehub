@@ -88,13 +88,15 @@ def get_data(symbol):
         pe = stock_info["trailingPE"]
         fifty_two_week_high = round(stock_info["fiftyTwoWeekHigh"], 2)
         fifty_two_week_low = round(stock_info["fiftyTwoWeekLow"], 2)
+        exchange = stock_info["exchange"]
         
         if not None in (current_price, previous_close, open_price, volume, 
                         average_volume, market_cap, company_name, dividend_yield, pe):
             return {"current_price": current_price, "previous_close": previous_close, "open_price": open_price, "volume": volume,
                     "average_volume": average_volume, "market_cap": market_cap, "company_name": company_name, "dividend_yield": dividend_yield,
                     "pe": pe, "fifty_two_week_high": fifty_two_week_high, "fifty_two_week_low": fifty_two_week_low, "bid_price": bid_price,
-                    "bid_size": bid_size, "ask_price": ask_price, "ask_size": ask_size, "day_high": day_high, "day_low": day_low}
+                    "bid_size": bid_size, "ask_price": ask_price, "ask_size": ask_size, "day_high": day_high, "day_low": day_low, "exchange": exchange
+                    }
         else:
             logging.warning(f"Missing data for symbol: {symbol}")
             return None
@@ -143,25 +145,44 @@ def usd(value):
     """Format value as USD."""
     return f"${value:,.2f}"
 
-# def custom_humanize(number):
-#     """
-#     Convert a large number to a short version with K, M, B, T suffixes.
+def custom_humanize(number):
+    """
+    Convert a large number to a short version with K, M, B, T suffixes.
     
-#     Args:
-#     number (float): The number to convert.
+    Args:
+    number (float): The number to convert.
     
-#     Returns:
-#     str: The converted number as a string with the appropriate suffix.
-#     """
-#     # Define suffixes for large numbers
-#     suffixes = ['', 'K', 'M', 'B', 'T']
-#     magnitude = 0
+    Returns:
+    str: The converted number as a string with the appropriate suffix.
+    """
+    # Define suffixes for large numbers
+    suffixes = ['', 'K', 'M', 'B', 'T']
+    magnitude = 0
     
-#     # Loop to divide the number and increase the magnitude
-#     while abs(number) >= 1000 and magnitude < len(suffixes) - 1:
-#         magnitude += 1
-#         number /= 1000.0
+    # Loop to divide the number and increase the magnitude
+    while abs(number) >= 1000 and magnitude < len(suffixes) - 1:
+        magnitude += 1
+        number /= 1000.0
     
-#     # Format the number with 2 decimal places and append the suffix
-#     return f"{number:.2f}{suffixes[magnitude]}"
+    # Format the number with 2 decimal places and append the suffix
+    return f"{number:.2f}{suffixes[magnitude]}"
+
+
+# Dictionary to map exchange codes to full names
+exchange_names = {
+    "NMS": "NASDAQ Stock Market",
+    "NYQ": "New York Stock Exchange (NYSE)",
+    "ASE": "NYSE American (formerly American Stock Exchange)",
+    "BATS": "BATS Global Markets",
+    "TOR": "Toronto Stock Exchange (TSX)",
+    "LON": "London Stock Exchange (LSE)",
+    "HKEX": "Hong Kong Stock Exchange",
+    "TSE": "Tokyo Stock Exchange",
+    "SHE": "Shenzhen Stock Exchange",
+    "SGX": "Singapore Exchange",
+    "ASX": "Australian Securities Exchange",
+    "ICE": "Intercontinental Exchange",
+    "FWB": "Frankfurt Stock Exchange",
+    # Add more mappings as needed
+}
 
