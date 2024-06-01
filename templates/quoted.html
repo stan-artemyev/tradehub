@@ -6,9 +6,12 @@
 
 {% block main %}
     <div class="mb-3">
-        <p>
-            A share of {{ symbol }} ({{ name }}) costs {{ price }}.
-        <p>
+        <h3>
+            <b>{{ symbol }}</b> ({{ name }})
+        </h3>
+        <h4>{{ price }}</h4>
+        <p>As of {{ current_time }}</p>
+        Currently Market is: <b>{{ market }}</b>
     </div>
 
     <h4>Market details</h4>

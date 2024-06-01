@@ -1,5 +1,5 @@
 import csv
-import datetime
+from datetime import datetime, time, date, timedelta
 import pytz
 import requests
 import urllib
@@ -57,13 +57,6 @@ def get_data(symbol):
     # Prepare API request
     symbol = symbol.upper()
     
-    # Get current date and time in US/Eastern timezone
-    est = pytz.timezone("US/Eastern")
-    current_time = datetime.datetime.now(est)
-
-    # Check if the market is currently open (betwen 9AM and 4PM EST)
-    market_is_open = (current_time.hour >= 9 and current_time.hour < 16)
-
     # Fetch the real-time market data
     try:
         # Create a Ticker object for the specified stock
@@ -113,8 +106,8 @@ def lookup(symbol):
 
     # Prepare API request
     symbol = symbol.upper()
-    end = datetime.datetime.now(pytz.timezone("US/Eastern"))
-    start = end - datetime.timedelta(days=7)
+    end = datetime.now(pytz.timezone("US/Eastern"))
+    start = end - timedelta(days=7)
 
     # Yahoo Finance API
     url = (
@@ -186,3 +179,52 @@ exchange_names = {
     # Add more mappings as needed
 }
 
+def market_is_open():
+    # Define NYSE regular trading hours
+    nyse_open = time(9, 30)
+    nyse_close = time(16, 0)
+    
+    # Define NYSE early closing hour (1:00 PM ET)
+    nyse_early_close = time(13, 0)
+    
+    # Get the current time in Eastern Time (ET)
+    eastern = pytz.timezone('US/Eastern')
+    now = datetime.now(eastern)
+    current_time = now.time()
+    
+    # List of NYSE holidays (sample)
+    holidays = [
+        datetime(2024, 1, 1),   # New Year's Day
+        datetime(2024, 7, 4),   # Independence Day
+        datetime(2024, 12, 25)  # Christmas Day
+    ]
+    
+    # List of early closing days (sample)
+    early_closings = [
+        datetime(2024, 11, 29), # Day after Thanksgiving
+        datetime(2024, 12, 24)  # Christmas Eve
+    ]
+    
+    # Remove time part from current date for comparison
+    today = now.date()
+    
+    # Check if today is a holiday
+    if today in [holiday.date() for holiday in holidays]:
+        return False
+    
+    # Check if today is a weekend
+    if now.weekday() >= 5:  # Saturday is 5 and Sunday is 6
+        return False
+    
+    # Check if today is an early closing day
+    if today in [early_closing.date() for early_closing in early_closings]:
+        if nyse_open <= current_time < nyse_early_close:
+            return True
+        else:
+            return False
+    
+    # Check if current time is within regular trading hours
+    if nyse_open <= current_time < nyse_close:
+        return True
+    else:
+        return False
