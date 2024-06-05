@@ -7,7 +7,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 import yfinance as yf
 
-from helpers import apology, login_required, lookup, usd, get_data, custom_humanize, exchange_names, market_is_open
+from helpers import apology, login_required, lookup, usd, get_data, custom_humanize, market_is_open, symbol_exists
 
 # Configure application
 app = Flask(__name__)
@@ -235,14 +235,32 @@ def quote():
         # Ensure symbol was submitted
         if not symbol:
             return apology("must provide ticker symbol")
-
+        
         # Ensure provided symbol is correct
         elif lookup(symbol) == None:
             return apology("invalid symbol")
-
         
-        # Create an empty dictionary to store stock data
-        stock_data = {}
+        # Call the get_data() function to get stock data    
+        stock_data = get_data(symbol)
+        
+        price = usd(stock_data["current_price"])
+        previous_close = usd(stock_data["previous_close"])
+        open_price = usd(stock_data["open_price"])
+        volume = custom_humanize(stock_data["volume"])
+        average_volume = custom_humanize(stock_data["average_volume"])
+        market_cap = custom_humanize(stock_data["market_cap"])        
+        dividend_yield = stock_data["dividend_yield"]
+        pe = stock_data["pe"]
+        fifty_two_week_high = usd(stock_data["fifty_two_week_high"])
+        fifty_two_week_low = usd(stock_data["fifty_two_week_low"])
+        bid_price = usd(stock_data["bid_price"])
+        bid_size = stock_data["bid_size"]
+        ask_price = usd(stock_data["ask_price"])
+        ask_size = stock_data["ask_size"]
+        day_high = usd(stock_data["day_high"])
+        day_low = usd(stock_data["day_low"])
+        currency = stock_data["currency"] 
+        name = stock_data["company_name"]
         
         # Get current time and format to HH:MM:SS
         current_time = datetime.now().strftime("%H:%M:%S")
@@ -253,33 +271,11 @@ def quote():
         else:
             market = "Closed"
         
-        # Call the get_data() function to get stock data
-        stock_data = get_data(symbol)
-        price = usd(stock_data["current_price"])
-        previous_close = usd(stock_data["previous_close"])
-        open_price = usd(stock_data["open_price"])
-        volume = custom_humanize(stock_data["volume"])
-        average_volume = custom_humanize(stock_data["average_volume"])
-        market_cap = custom_humanize(stock_data["market_cap"])        
-        dividend_yield = f"{(stock_data["dividend_yield"] * 100):.2f}%"
-        pe = round(stock_data["pe"], 2)
-        fifty_two_week_high = usd(stock_data["fifty_two_week_high"])
-        fifty_two_week_low = usd(stock_data["fifty_two_week_low"])
-        bid_price = usd(stock_data["bid_price"])
-        bid_size = stock_data["bid_size"]
-        ask_price = usd(stock_data["ask_price"])
-        ask_size = stock_data["ask_size"]
-        day_high = usd(stock_data["day_high"])
-        day_low = usd(stock_data["day_low"])
-        # Get the exchange name from exchange code
-        exchange_name = exchange_names.get(stock_data["exchange"], "")
-        name = stock_data["company_name"]
-        
         return render_template("quoted.html", current_time=current_time, symbol=symbol.upper(), price=price, previous_close=previous_close, open_price=open_price,
                                volume=volume, average_volume=average_volume, market_cap=market_cap, dividend_yield=dividend_yield,
                                pe=pe, fifty_two_week_high=fifty_two_week_high, fifty_two_week_low=fifty_two_week_low, bid_price=bid_price,
                                bid_size=bid_size, ask_price=ask_price, ask_size=ask_size, day_high=day_high, day_low=day_low,
-                               exchange=exchange_name, name=name, market=market)
+                               currency=currency, name=name, market=market)
 
 
 @app.route("/register", methods=["GET", "POST"])

@@ -63,42 +63,66 @@ def get_data(symbol):
         stock = yf.Ticker(symbol)
         stock_info = stock.info
         
-        # Get historical data for the stock from stock_info
-        current_price = round(stock_info["currentPrice"], 2)
+        current_price = round(stock.fast_info["last_price"], 2)
         previous_close = round(stock_info["previousClose"], 2)
         open_price = round(stock_info["open"], 2)
         day_high = round(stock_info["dayHigh"], 2)
         day_low = round(stock_info["dayLow"], 2)
         bid_price = round(stock_info["bid"], 2)
-        bid_size = stock_info["bidSize"]
+        bid_size = stock_info.get("bidSize", "N/A")
         ask_price = round(stock_info["ask"], 2)
-        ask_size = stock_info["askSize"]
+        ask_size = stock_info.get("askSize", "N/A")
         volume = stock_info["volume"]
         average_volume = stock_info["averageVolume"]
-        market_cap = stock_info["marketCap"]
+        market_cap = stock_info.get("marketCap", "")
         company_name = stock_info["longName"]
-        dividend_yield = stock_info["dividendYield"]
-        pe = stock_info["trailingPE"]
-        fifty_two_week_high = round(stock_info["fiftyTwoWeekHigh"], 2)
-        fifty_two_week_low = round(stock_info["fiftyTwoWeekLow"], 2)
-        exchange = stock_info["exchange"]
+        # Look for dividend_yield in stock_info
+        if "dividendYield" in stock_info:
+            dividend_yield = f'{round(stock_info["dividendYield"] * 100, 2)}%'
+        elif "yield" in stock_info:
+            dividend_yield = f'{round(stock_info["yield"] * 100, 2)}%'
+        else:
+            dividend_yield = "-"
         
-        if not None in (current_price, previous_close, open_price, volume, 
-                        average_volume, market_cap, company_name, dividend_yield, pe):
-            return {"current_price": current_price, "previous_close": previous_close, "open_price": open_price, "volume": volume,
+        # Look for PE in stock_info
+        if "trailingPE" in stock_info:
+            pe = round(stock_info["trailingPE"], 2)
+        elif "forwardPE" in stock_info:
+            pe = round(stock_info["forwardPE"], 2)
+        else:
+            pe = "-"
+        
+        #fifty_two_week_high = round(stock_info["fiftyTwoWeekHigh"], 2)
+        fifty_two_week_high = round(stock_info.get("fiftyTwoWeekHigh", "N/A"), 2)
+        fifty_two_week_low = round(stock_info["fiftyTwoWeekLow"], 2)
+        currency = stock_info["currency"]
+        
+        return {"current_price": current_price, "previous_close": previous_close, "open_price": open_price, "volume": volume,
                     "average_volume": average_volume, "market_cap": market_cap, "company_name": company_name, "dividend_yield": dividend_yield,
                     "pe": pe, "fifty_two_week_high": fifty_two_week_high, "fifty_two_week_low": fifty_two_week_low, "bid_price": bid_price,
-                    "bid_size": bid_size, "ask_price": ask_price, "ask_size": ask_size, "day_high": day_high, "day_low": day_low, "exchange": exchange
+                    "bid_size": bid_size, "ask_price": ask_price, "ask_size": ask_size, "day_high": day_high, "day_low": day_low, "currency": currency
                     }
+    except (KeyError, IndexError, ValueError):
+        return None
+    
+
+def symbol_exists(symbol):
+    """Check if symbol exists."""
+    try:
+        # Try to fetch some basic information about the symbol
+        ticker = yf.Ticker(symbol)
+        info = ticker.info
+        
+        # Check if the fetched information contains a known valid key
+        if 'previousClose' in info:
+            return True
         else:
-            logging.warning(f"Missing data for symbol: {symbol}")
-            return None
-    except yf.exceptions.YahooFinanceError as e:
-        logging.error(f"Error fetching data for symbol: {symbol} - {e}")
-        return None
-    except (KeyError, IndexError, ValueError) as e:
-        logging.warning(f"Error extracting data for symbol: {symbol} - {e}")
-        return None
+            return False
+    except (KeyError, IndexError, ValueError, yf.shared._exceptions.YFinanceError):
+        return False
+
+
+
 
 
 def lookup(symbol):
@@ -146,38 +170,25 @@ def custom_humanize(number):
     number (float): The number to convert.
     
     Returns:
-    str: The converted number as a string with the appropriate suffix.
+    str: The converted number as a string with the appropriate suffix
+    or an empty string if the argument is an empty string.
     """
-    # Define suffixes for large numbers
-    suffixes = ['', 'K', 'M', 'B', 'T']
-    magnitude = 0
+    # Check if the number is empty
+    if number == "":
+        return ""
+    else:        
+        # Define suffixes for large numbers
+        suffixes = ['', 'K', 'M', 'B', 'T']
+        magnitude = 0
+        
+        # Loop to divide the number and increase the magnitude
+        while abs(number) >= 1000 and magnitude < len(suffixes) - 1:
+            magnitude += 1
+            number /= 1000.0
+        
+        # Format the number with 2 decimal places and append the suffix
+        return f"{number:.2f}{suffixes[magnitude]}"
     
-    # Loop to divide the number and increase the magnitude
-    while abs(number) >= 1000 and magnitude < len(suffixes) - 1:
-        magnitude += 1
-        number /= 1000.0
-    
-    # Format the number with 2 decimal places and append the suffix
-    return f"{number:.2f}{suffixes[magnitude]}"
-
-
-# Dictionary to map exchange codes to full names
-exchange_names = {
-    "NMS": "NASDAQ Stock Market",
-    "NYQ": "New York Stock Exchange (NYSE)",
-    "ASE": "NYSE American (formerly American Stock Exchange)",
-    "BATS": "BATS Global Markets",
-    "TOR": "Toronto Stock Exchange (TSX)",
-    "LON": "London Stock Exchange (LSE)",
-    "HKEX": "Hong Kong Stock Exchange",
-    "TSE": "Tokyo Stock Exchange",
-    "SHE": "Shenzhen Stock Exchange",
-    "SGX": "Singapore Exchange",
-    "ASX": "Australian Securities Exchange",
-    "ICE": "Intercontinental Exchange",
-    "FWB": "Frankfurt Stock Exchange",
-    # Add more mappings as needed
-}
 
 def market_is_open():
     # Define NYSE regular trading hours
@@ -228,3 +239,6 @@ def market_is_open():
         return True
     else:
         return False
+    
+    
+
