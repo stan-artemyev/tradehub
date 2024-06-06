@@ -51,116 +51,11 @@ def login_required(f):
 
     return decorated_function
 
-def get_data(symbol):
-    """Look up quote for symbol using yfinance."""
-    
-    # Prepare API request
-    symbol = symbol.upper()
-    
-    # Fetch the real-time market data
-    try:
-        # Create a Ticker object for the specified stock
-        stock = yf.Ticker(symbol)
-        stock_info = stock.info
-        
-        current_price = round(stock.fast_info["last_price"], 2)
-        previous_close = round(stock_info["previousClose"], 2)
-        open_price = round(stock_info["open"], 2)
-        day_high = round(stock_info["dayHigh"], 2)
-        day_low = round(stock_info["dayLow"], 2)
-        bid_price = round(stock_info["bid"], 2)
-        bid_size = stock_info.get("bidSize", "N/A")
-        ask_price = round(stock_info["ask"], 2)
-        ask_size = stock_info.get("askSize", "N/A")
-        volume = stock_info["volume"]
-        average_volume = stock_info["averageVolume"]
-        market_cap = stock_info.get("marketCap", "")
-        company_name = stock_info["longName"]
-        # Look for dividend_yield in stock_info
-        if "dividendYield" in stock_info:
-            dividend_yield = f'{round(stock_info["dividendYield"] * 100, 2)}%'
-        elif "yield" in stock_info:
-            dividend_yield = f'{round(stock_info["yield"] * 100, 2)}%'
-        else:
-            dividend_yield = "-"
-        
-        # Look for PE in stock_info
-        if "trailingPE" in stock_info:
-            pe = round(stock_info["trailingPE"], 2)
-        elif "forwardPE" in stock_info:
-            pe = round(stock_info["forwardPE"], 2)
-        else:
-            pe = "-"
-        
-        #fifty_two_week_high = round(stock_info["fiftyTwoWeekHigh"], 2)
-        fifty_two_week_high = round(stock_info.get("fiftyTwoWeekHigh", "N/A"), 2)
-        fifty_two_week_low = round(stock_info["fiftyTwoWeekLow"], 2)
-        currency = stock_info["currency"]
-        
-        return {"current_price": current_price, "previous_close": previous_close, "open_price": open_price, "volume": volume,
-                    "average_volume": average_volume, "market_cap": market_cap, "company_name": company_name, "dividend_yield": dividend_yield,
-                    "pe": pe, "fifty_two_week_high": fifty_two_week_high, "fifty_two_week_low": fifty_two_week_low, "bid_price": bid_price,
-                    "bid_size": bid_size, "ask_price": ask_price, "ask_size": ask_size, "day_high": day_high, "day_low": day_low, "currency": currency
-                    }
-    except (KeyError, IndexError, ValueError):
-        return None
-    
-
-def symbol_exists(symbol):
-    """Check if symbol exists."""
-    try:
-        # Try to fetch some basic information about the symbol
-        ticker = yf.Ticker(symbol)
-        info = ticker.info
-        
-        # Check if the fetched information contains a known valid key
-        if 'previousClose' in info:
-            return True
-        else:
-            return False
-    except (KeyError, IndexError, ValueError, yf.shared._exceptions.YFinanceError):
-        return False
-
-
-
-
-
-def lookup(symbol):
-    """Look up quote for symbol."""
-
-    # Prepare API request
-    symbol = symbol.upper()
-    end = datetime.now(pytz.timezone("US/Eastern"))
-    start = end - timedelta(days=7)
-
-    # Yahoo Finance API
-    url = (
-        f"https://query1.finance.yahoo.com/v7/finance/download/{urllib.parse.quote_plus(symbol)}"
-        f"?period1={int(start.timestamp())}"
-        f"&period2={int(end.timestamp())}"
-        f"&interval=1d&events=history&includeAdjustedClose=true"
-    )
-
-    # Query API
-    try:
-        response = requests.get(
-            url,
-            cookies={"session": str(uuid.uuid4())},
-            headers={"Accept": "*/*", "User-Agent": request.headers.get("User-Agent")},
-        )
-        response.raise_for_status()
-
-        # CSV header: Date,Open,High,Low,Close,Adj Close,Volume
-        quotes = list(csv.DictReader(response.content.decode("utf-8").splitlines()))
-        price = round(float(quotes[-1]["Adj Close"]), 2)
-        return {"price": price, "symbol": symbol}
-    except (KeyError, IndexError, requests.RequestException, ValueError):
-        return None
-
 
 def usd(value):
     """Format value as USD."""
     return f"${value:,.2f}"
+
 
 def custom_humanize(number):
     """
@@ -241,4 +136,112 @@ def market_is_open():
         return False
     
     
+
+def get_data(symbol):
+    """Look up quote for symbol using yfinance."""
+    
+    # Prepare API request
+    symbol = symbol.upper()
+    
+    # Fetch the real-time market data
+    try:
+        # Create a Ticker object for the specified stock
+        stock = yf.Ticker(symbol)
+        stock_info = stock.info
+        
+        # Look the current price of the stock in info and then in fast_info
+        if "currentPrice" in stock_info:
+            current_price = usd(round(stock_info["currentPrice"], 2))
+        elif "last_price" in stock.fast_info:
+            current_price = usd(round(stock.fast_info["last_price"], 2))
+        else:
+            current_price = "-"
+        
+        previous_close = usd(round(stock_info.get("previousClose", 0) , 2))
+        open_price = usd(round(stock_info.get("open", 0), 2))
+        day_high = usd(round(stock_info.get("dayHigh", 0), 2))
+        day_low = usd(round(stock_info.get("dayLow", 0), 2))
+        bid_price = usd(round(stock_info.get("bid", 0), 2))
+        bid_size = stock_info.get("bidSize", "N/A")
+        ask_price = usd(round(stock_info.get("ask", 0), 2))
+        ask_size = stock_info.get("askSize", "N/A")
+        volume = custom_humanize(stock_info.get("volume", 0))
+        average_volume = custom_humanize(stock_info.get("averageVolume", 0))    
+        market_cap = custom_humanize(stock_info.get("marketCap", 0))
+        company_name = stock_info.get("longName", symbol)
+        
+        # Look for dividend_yield in stock_info
+        if "dividendYield" in stock_info:
+            dividend_yield = f'{round(stock_info["dividendYield"] * 100, 2)}%'
+        elif "yield" in stock_info:
+            dividend_yield = f'{round(stock_info["yield"] * 100, 2)}%'
+        else:
+            dividend_yield = "-"
+        
+        # Look for PE in stock_info
+        if "trailingPE" in stock_info:
+            pe = round(stock_info["trailingPE"], 2)
+        elif "forwardPE" in stock_info:
+            pe = round(stock_info["forwardPE"], 2)
+        else:
+            pe = "-"
+        
+        fifty_two_week_high = usd(round(stock_info.get("fiftyTwoWeekHigh", "N/A"), 2))
+        fifty_two_week_low = usd(round(stock_info["fiftyTwoWeekLow"], 2))
+        currency = stock_info.get("currency", "USD")
+        
+        # Get current time and format to HH:MM:SS
+        current_time = datetime.now().strftime("%H:%M:%S")
+        
+        # Check if the market is open
+        if market_is_open():
+            market = "Open"
+        else:
+            market = "Closed"
+        
+        return {"current_price": current_price, "previous_close": previous_close, "open_price": open_price, "volume": volume,
+                    "average_volume": average_volume, "market_cap": market_cap, "name": company_name, "dividend_yield": dividend_yield,
+                    "pe": pe, "fifty_two_week_high": fifty_two_week_high, "fifty_two_week_low": fifty_two_week_low, "bid_price": bid_price,
+                    "bid_size": bid_size, "ask_price": ask_price, "ask_size": ask_size, "day_high": day_high, "day_low": day_low, "currency": currency,
+                    "current_time": current_time, "market": market, "symbol": symbol
+                    }
+    except (KeyError, IndexError, ValueError):
+        return None
+    
+
+
+def lookup(symbol):
+    """Look up quote for symbol."""
+
+    # Prepare API request
+    symbol = symbol.upper()
+    end = datetime.now(pytz.timezone("US/Eastern"))
+    start = end - timedelta(days=7)
+
+    # Yahoo Finance API
+    url = (
+        f"https://query1.finance.yahoo.com/v7/finance/download/{urllib.parse.quote_plus(symbol)}"
+        f"?period1={int(start.timestamp())}"
+        f"&period2={int(end.timestamp())}"
+        f"&interval=1d&events=history&includeAdjustedClose=true"
+    )
+
+    # Query API
+    try:
+        response = requests.get(
+            url,
+            cookies={"session": str(uuid.uuid4())},
+            headers={"Accept": "*/*", "User-Agent": request.headers.get("User-Agent")},
+        )
+        response.raise_for_status()
+
+        # CSV header: Date,Open,High,Low,Close,Adj Close,Volume
+        quotes = list(csv.DictReader(response.content.decode("utf-8").splitlines()))
+        price = round(float(quotes[-1]["Adj Close"]), 2)
+        return {"price": price, "symbol": symbol}
+    except (KeyError, IndexError, requests.RequestException, ValueError):
+        return None
+
+
+
 

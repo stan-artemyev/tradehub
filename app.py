@@ -7,7 +7,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 import yfinance as yf
 
-from helpers import apology, login_required, lookup, usd, get_data, custom_humanize, market_is_open, symbol_exists
+from helpers import apology, login_required, lookup, usd, get_data
 
 # Configure application
 app = Flask(__name__)
@@ -70,6 +70,9 @@ def index():
 
     # Calculate TOTAL (stock values + user cash)
     total = usd(total + user_cash)
+    
+    # Get username
+    username = db.execute("SELECT username FROM users WHERE id = ?", session["user_id"])[0]["username"]
 
     return render_template(
         "index.html", username=username, stocks=stocks, cash=usd(user_cash), total=total
@@ -224,59 +227,71 @@ def logout():
 def quote():
     """Get stock quote."""
 
+    # User reached route via POST (by AJAX request from refreshQuote)
+    if request.method == "POST":
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            # Get the symbol from the AJAX request
+            symbol = request.get_json()["symbol"]
+
+            # Call the get_data() function to get the updated stock data
+            stock_data = get_data(symbol)
+
+            # Prepare the response data
+            response_data = {
+                "price": usd(stock_data["current_price"]),
+                "previous_close": usd(stock_data["previous_close"]),
+                # Add other data fields as needed
+            }
+
+            return jsonify(response_data)
+    
+        # User reached route via GET (by clicking a quote button)
+        else:     
+            symbol = request.form.get("symbol")
+
+            # Ensure symbol was submitted
+            if not symbol:
+                return apology("must provide ticker symbol")
+            
+            # Ensure provided symbol is correct
+            elif lookup(symbol) == None:
+                return apology("invalid symbol")
+            
+            # Call the get_data() function to get stock data    
+            stock_data = get_data(symbol)
+            
+            # price = stock_data["current_price"]
+            # previous_close = stock_data["previous_close"]
+            # open_price = usd(stock_data["open_price"])
+            # volume = custom_humanize(stock_data["volume"])
+            # average_volume = custom_humanize(stock_data["average_volume"])
+            # market_cap = custom_humanize(stock_data["market_cap"])        
+            # dividend_yield = stock_data["dividend_yield"]
+            # pe = stock_data["pe"]
+            # fifty_two_week_high = usd(stock_data["fifty_two_week_high"])
+            # fifty_two_week_low = usd(stock_data["fifty_two_week_low"])
+            # bid_price = usd(stock_data["bid_price"])
+            # bid_size = stock_data["bid_size"]
+            # ask_price = usd(stock_data["ask_price"])
+            # ask_size = stock_data["ask_size"]
+            # day_high = usd(stock_data["day_high"])
+            # day_low = usd(stock_data["day_low"])
+            # currency = stock_data["currency"] 
+            # name = stock_data["company_name"]
+            
+            return render_template("quoted.html", stock_data=stock_data)
+            
+            
+            
+            # return render_template("quoted.html", current_time=current_time, symbol=symbol.upper(), price=price, previous_close=previous_close, open_price=open_price,
+            #                     volume=volume, average_volume=average_volume, market_cap=market_cap, dividend_yield=dividend_yield,
+            #                     pe=pe, fifty_two_week_high=fifty_two_week_high, fifty_two_week_low=fifty_two_week_low, bid_price=bid_price,
+            #                     bid_size=bid_size, ask_price=ask_price, ask_size=ask_size, day_high=day_high, day_low=day_low,
+            #                     currency=currency, name=name, market=market)
+
     # User reached route via GET
-    if request.method == "GET":
-        return render_template("quote.html")
-
-    # User reached route via POST (by submiting a quote button)
     else:
-        symbol = request.form.get("symbol")
-
-        # Ensure symbol was submitted
-        if not symbol:
-            return apology("must provide ticker symbol")
-        
-        # Ensure provided symbol is correct
-        elif lookup(symbol) == None:
-            return apology("invalid symbol")
-        
-        # Call the get_data() function to get stock data    
-        stock_data = get_data(symbol)
-        
-        price = usd(stock_data["current_price"])
-        previous_close = usd(stock_data["previous_close"])
-        open_price = usd(stock_data["open_price"])
-        volume = custom_humanize(stock_data["volume"])
-        average_volume = custom_humanize(stock_data["average_volume"])
-        market_cap = custom_humanize(stock_data["market_cap"])        
-        dividend_yield = stock_data["dividend_yield"]
-        pe = stock_data["pe"]
-        fifty_two_week_high = usd(stock_data["fifty_two_week_high"])
-        fifty_two_week_low = usd(stock_data["fifty_two_week_low"])
-        bid_price = usd(stock_data["bid_price"])
-        bid_size = stock_data["bid_size"]
-        ask_price = usd(stock_data["ask_price"])
-        ask_size = stock_data["ask_size"]
-        day_high = usd(stock_data["day_high"])
-        day_low = usd(stock_data["day_low"])
-        currency = stock_data["currency"] 
-        name = stock_data["company_name"]
-        
-        # Get current time and format to HH:MM:SS
-        current_time = datetime.now().strftime("%H:%M:%S")
-        
-        # Check if the market is open
-        if market_is_open():
-            market = "Open"
-        else:
-            market = "Closed"
-        
-        return render_template("quoted.html", current_time=current_time, symbol=symbol.upper(), price=price, previous_close=previous_close, open_price=open_price,
-                               volume=volume, average_volume=average_volume, market_cap=market_cap, dividend_yield=dividend_yield,
-                               pe=pe, fifty_two_week_high=fifty_two_week_high, fifty_two_week_low=fifty_two_week_low, bid_price=bid_price,
-                               bid_size=bid_size, ask_price=ask_price, ask_size=ask_size, day_high=day_high, day_low=day_low,
-                               currency=currency, name=name, market=market)
-
+        return render_template("quote.html")        
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -449,3 +464,11 @@ def change_password():
 
         # Redirect user to home page
         return redirect("/")
+
+@app.route("/update", methods=["GET"])
+@login_required
+def update():
+    """Update stock price"""
+    return render_template 
+    
+    

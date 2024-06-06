@@ -7,11 +7,11 @@
 {% block main %}
     <div class="mb-3">
         <h3>
-            <b>{{ symbol }}</b> ({{ name }})
+            <b>{{ stock_data.symbol }}</b> ({{ stock_data.name }})
         </h3>
-        <h4>{{ price }}</h4>
-        <p>As of {{ current_time }}</p>
-        Currently Market is: <b>{{ market }}</b>
+        <h4>{{ stock_data.price }}</h4>
+        <p>As of {{ stock_data.current_time }} <a href="#" onclick="refreshQuote('{{ symbol }}'); return false;">Update</a></p> 
+        Currently Market is: <b>{{ stock_data.market }}</b>
     </div>
 
     <h4>Market details</h4>
@@ -25,7 +25,7 @@
                             Previous Close
                         </th>
                         <td>
-                            {{ previous_close }}
+                            {{ stock_data.previous_close }}
                         </td>
                     </tr>
                     <tr>
@@ -33,7 +33,7 @@
                             Open
                         </th>
                         <td>
-                            {{ open_price }}
+                            {{ stock_data.open_price }}
                         </td>
                     </tr>
                     <tr>
@@ -41,7 +41,7 @@
                             Bid
                         </th>
                         <td>
-                            {{ bid_price }} x {{ bid_size }}
+                            {{ stock_data.bid_price }} x {{ stock_data.bid_size }}
                         </td>
                     </tr>
                     <tr>
@@ -49,7 +49,7 @@
                             Ask
                         </th>
                         <td>
-                            {{ ask_price }} x {{ ask_size }}
+                            {{ stock_data.ask_price }} x {{ stock_data.ask_size }}
                         </td>
                     </tr>
                     <tr>
@@ -57,7 +57,7 @@
                             Day High
                         </th>
                         <td>
-                            {{ day_high }}
+                            {{ stock_data.day_high }}
                         </td>
                     </tr>
                     <tr>
@@ -65,15 +65,15 @@
                             Day Low
                         </th>
                         <td>
-                            {{ day_low }}
+                            {{ stock_data.day_low }}
                         </td>
                     </tr>
                     <tr>
                         <th class="text-start">
-                            Exchange
+                            Currency
                         </th>
                         <td>
-                            {{ exchange }}
+                            {{ stock_data.currency }}
                         </td>
                     </tr>                     
                 </tbody>
@@ -88,15 +88,15 @@
                             Market Cap
                         </th>
                         <td>
-                            {{ market_cap }}
+                            {{ stock_data.market_cap }}
                         </td>
                     </tr>
                     <tr>
                         <th class="text-start">
-                            P/E Ration
+                            P/E Ratio
                         </th>
                         <td>
-                            {{ pe }}
+                            {{ stock_data.pe }}
                         </td>
                     </tr>
                     <tr>
@@ -104,7 +104,7 @@
                             52-week High
                         </th>
                         <td>
-                            {{ fifty_two_week_high }}
+                            {{ stock_data.fifty_two_week_high }}
                         </td>
                     </tr>
                     <tr>
@@ -112,7 +112,7 @@
                             52-week Low
                         </th>
                         <td>
-                            {{ fifty_two_week_low }}
+                            {{ stock_data.fifty_two_week_low }}
                         </td>
                     </tr>
                     <tr>
@@ -120,7 +120,7 @@
                             Volume
                         </th>
                         <td>
-                            {{ volume }}
+                            {{ stock_data.volume }}
                         </td>
                     </tr>
                     <tr>
@@ -128,7 +128,7 @@
                             Average Volume
                         </th>
                         <td>
-                            {{ average_volume }}
+                            {{ stock_data.average_volume }}
                         </td>
                     </tr>    
                     <tr>
@@ -136,7 +136,7 @@
                             Yield
                         </th>
                         <td>
-                            {{ dividend_yield }}
+                            {{ stock_data.dividend_yield }}
                         </td>
                     </tr>                
                 </tbody>
@@ -144,4 +144,29 @@
         </div>
             
     </div>
+
+    <script>
+        <!-- Create refreshQuote function that creates AJAX request to server to get updated stock data -->
+        function refreshQuote(symbol) {
+            fetch('/quote', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ symbol: symbol })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update the page content with the new data
+                document.getElementById('price').textContent = data.price;
+                document.getElementById('previous-close').textContent = data.previous_close;
+                // Update other elements similarly
+            })
+            .catch(error => {
+                console.error('Error refreshing quote:', error);
+            });
+        }
+    </script>
+
 {% endblock %}
