@@ -9,9 +9,11 @@
         <h3>
             <b>{{ stock_data.symbol }}</b> ({{ stock_data.name }})
         </h3>
-        <h4>{{ stock_data.price }}</h4>
-        <p>As of {{ stock_data.current_time }} <a href="#" onclick="refreshQuote('{{ symbol }}'); return false;">Update</a></p> 
-        Currently Market is: <b>{{ stock_data.market }}</b>
+        <h4 id="price">{{ stock_data.price }}</h4>
+        <p>As of <span id="current_time">{{ stock_data.current_time }}</span> <a href="#" onclick="refreshQuote('{{ stock_data.symbol }}'); return false;">Update</a></p>
+
+        
+        Currently Market is: <b id="market">{{ stock_data.market }}</b>
     </div>
 
     <h4>Market details</h4>
@@ -41,7 +43,7 @@
                             Bid
                         </th>
                         <td>
-                            {{ stock_data.bid_price }} x {{ stock_data.bid_size }}
+                            <span id="bid_price">{{ stock_data.bid_price }}</span> x <span id="bid_size">{{ stock_data.bid_size }}</span>
                         </td>
                     </tr>
                     <tr>
@@ -49,14 +51,14 @@
                             Ask
                         </th>
                         <td>
-                            {{ stock_data.ask_price }} x {{ stock_data.ask_size }}
+                            <span id="ask_price">{{ stock_data.ask_price }}</span> x <span id="ask_size">{{ stock_data.ask_size }}</span>
                         </td>
                     </tr>
                     <tr>
                         <th class="text-start">
                             Day High
                         </th>
-                        <td>
+                        <td id="day_high">
                             {{ stock_data.day_high }}
                         </td>
                     </tr>
@@ -64,7 +66,7 @@
                         <th class="text-start">
                             Day Low
                         </th>
-                        <td>
+                        <td id="day_low">
                             {{ stock_data.day_low }}
                         </td>
                     </tr>
@@ -148,20 +150,48 @@
     <script>
         <!-- Create refreshQuote function that creates AJAX request to server to get updated stock data -->
         function refreshQuote(symbol) {
+            const payload = JSON.stringify({ symbol: symbol });
+            console.log("Sending payload:", payload);
+    
             fetch('/quote', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
                 },
-                body: JSON.stringify({ symbol: symbol })
+                body: payload
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log("Response status:", response.status);
+                if (!response.ok) {
+                    return response.json().then(error => { 
+                        console.error("Response error content:", error);
+                        throw new Error(error.error); 
+                    });
+                }
+                return response.json();
+            })
             .then(data => {
+                console.log('Data received:', data); // Log the entire data object
+                if (data.error) {
+                    console.error('Error refreshing quote:', data.error);
+                    return;
+                }
                 // Update the page content with the new data
-                document.getElementById('price').textContent = data.price;
-                document.getElementById('previous-close').textContent = data.previous_close;
-                // Update other elements similarly
+                document.getElementById("price").textContent = data.price
+                
+                
+                document.getElementById('current_time').textContent = data.current_time;
+                // Log updated current_time
+                console.log('Updated current_time:', document.getElementById('current_time').textContent);
+
+                document.getElementById("market").textContent = data.market
+                document.getElementById("bid_price").textContent = data.bid_price
+                document.getElementById("bid_size").textContent = data.bid_size
+                document.getElementById("ask_price").textContent = data.ask_price
+                document.getElementById("ask_size").textContent = data.ask_size
+                document.getElementById("day_high").textContent = data.day_high
+                document.getElementById("day_low").textContent = data.day_low
             })
             .catch(error => {
                 console.error('Error refreshing quote:', error);

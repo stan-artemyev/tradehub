@@ -199,7 +199,7 @@ def get_data(symbol):
         else:
             market = "Closed"
         
-        return {"current_price": current_price, "previous_close": previous_close, "open_price": open_price, "volume": volume,
+        return {"price": current_price, "previous_close": previous_close, "open_price": open_price, "volume": volume,
                     "average_volume": average_volume, "market_cap": market_cap, "name": company_name, "dividend_yield": dividend_yield,
                     "pe": pe, "fifty_two_week_high": fifty_two_week_high, "fifty_two_week_low": fifty_two_week_low, "bid_price": bid_price,
                     "bid_size": bid_size, "ask_price": ask_price, "ask_size": ask_size, "day_high": day_high, "day_low": day_low, "currency": currency,

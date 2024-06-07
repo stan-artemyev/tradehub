@@ -1,8 +1,7 @@
 import os
 
 from cs50 import SQL
-from flask import Flask, flash, redirect, render_template, request, session
-from flask.json import jsonify
+from flask import Flask, flash, redirect, render_template, request, session, jsonify
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
@@ -231,20 +230,26 @@ def quote():
     # User reached route via POST (by AJAX request from refreshQuote)
     if request.method == "POST":
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            # Get the symbol from the AJAX request
-            symbol = request.get_json()["symbol"]
+            try:
+                # Log headers and JSON payload
+                print("Headers:", request.headers)
+                print("Request data:", request.get_data())
 
-            # Call the get_data() function to get the updated stock data
-            stock_data = get_data(symbol)
+                # Get the symbol from the AJAX request
+                symbol = request.get_json()["symbol"]
+                if not symbol:
+                    return jsonify({"error": "Invalid symbol"}), 400
 
-            # Prepare the response data
-            response_data = {
-                "price": usd(stock_data["current_price"]),
-                "previous_close": usd(stock_data["previous_close"]),
-                # Add other data fields as needed
-            }
+                # Call the get_data() function to get the updated stock data
+                stock_data = get_data(symbol)
+                
+                if stock_data is None:
+                    return jsonify({"error": "Failed to fetch stock data"}), 500
 
-            return jsonify(response_data)
+                return jsonify(stock_data)
+            except Exception as e:
+                print(f"Error processing request: {e}")  # Log the error
+                return jsonify({"error": "An error occurred while processing the request"}), 500
     
         # User reached route via GET (by clicking a quote button)
         else:     
@@ -439,10 +444,5 @@ def change_password():
         # Redirect user to home page
         return redirect("/")
 
-@app.route("/update", methods=["GET"])
-@login_required
-def update():
-    """Update stock price"""
-    return render_template 
     
     
