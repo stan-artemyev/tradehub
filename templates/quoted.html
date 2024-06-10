@@ -5,14 +5,20 @@
 {% endblock %}
 
 {% block main %}
-    <div class="mb-3">
+    <div class="container mb-3">
         <h3>
             <b>{{ stock_data.symbol }}</b> ({{ stock_data.name }})
         </h3>
-        <h4 id="price">{{ stock_data.price }}</h4>
-        <p>As of <span id="current_time">{{ stock_data.current_time }}</span> <a href="#" onclick="refreshQuote('{{ stock_data.symbol }}'); return false;">Update</a></p>
-
+        <div class="d-inline-flex align-items-center">
+            <h4 id="price">{{ stock_data.price }}</h4>
+            <p id="price_diff" class="mb-2 ms-2 me-1" style="color: {{ stock_data.price_diff_color }}">{{ stock_data.price_diff }}</p>
+            <p id="percentage_change" class="mb-2" style="color: {{ stock_data.price_diff_color }}">({{ stock_data.percentage_change }}%)</p>
+        </div>
         
+        
+        
+
+        <p>As of <span id="current_time">{{ stock_data.current_time }}</span> <a href="#" onclick="refreshQuote('{{ stock_data.symbol }}'); return false;">Update</a></p>
         Currently Market is: <b id="market">{{ stock_data.market }}</b>
     </div>
 
@@ -89,7 +95,7 @@
                         <th class="text-start">
                             Market Cap
                         </th>
-                        <td>
+                        <td id="market_cap">
                             {{ stock_data.market_cap }}
                         </td>
                     </tr>
@@ -97,7 +103,7 @@
                         <th class="text-start">
                             P/E Ratio
                         </th>
-                        <td>
+                        <td id="pe">
                             {{ stock_data.pe }}
                         </td>
                     </tr>
@@ -105,7 +111,7 @@
                         <th class="text-start">
                             52-week High
                         </th>
-                        <td>
+                        <td id="fifty_two_week_high">
                             {{ stock_data.fifty_two_week_high }}
                         </td>
                     </tr>
@@ -113,7 +119,7 @@
                         <th class="text-start">
                             52-week Low
                         </th>
-                        <td>
+                        <td id="fifty_two_week_low">
                             {{ stock_data.fifty_two_week_low }}
                         </td>
                     </tr>
@@ -121,7 +127,7 @@
                         <th class="text-start">
                             Volume
                         </th>
-                        <td>
+                        <td id="volume">
                             {{ stock_data.volume }}
                         </td>
                     </tr>
@@ -129,7 +135,7 @@
                         <th class="text-start">
                             Average Volume
                         </th>
-                        <td>
+                        <td id="average_volume">
                             {{ stock_data.average_volume }}
                         </td>
                     </tr>    
@@ -137,66 +143,16 @@
                         <th class="text-start">
                             Yield
                         </th>
-                        <td>
+                        <td id="yield">
                             {{ stock_data.dividend_yield }}
                         </td>
                     </tr>                
                 </tbody>
             </table>
-        </div>
-            
+        </div>            
     </div>
 
-    <script>
-        <!-- Create refreshQuote function that creates AJAX request to server to get updated stock data -->
-        function refreshQuote(symbol) {
-            const payload = JSON.stringify({ symbol: symbol });
-            console.log("Sending payload:", payload);
-    
-            fetch('/quote', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: payload
-            })
-            .then(response => {
-                console.log("Response status:", response.status);
-                if (!response.ok) {
-                    return response.json().then(error => { 
-                        console.error("Response error content:", error);
-                        throw new Error(error.error); 
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Data received:', data); // Log the entire data object
-                if (data.error) {
-                    console.error('Error refreshing quote:', data.error);
-                    return;
-                }
-                // Update the page content with the new data
-                document.getElementById("price").textContent = data.price
-                
-                
-                document.getElementById('current_time').textContent = data.current_time;
-                // Log updated current_time
-                console.log('Updated current_time:', document.getElementById('current_time').textContent);
-
-                document.getElementById("market").textContent = data.market
-                document.getElementById("bid_price").textContent = data.bid_price
-                document.getElementById("bid_size").textContent = data.bid_size
-                document.getElementById("ask_price").textContent = data.ask_price
-                document.getElementById("ask_size").textContent = data.ask_size
-                document.getElementById("day_high").textContent = data.day_high
-                document.getElementById("day_low").textContent = data.day_low
-            })
-            .catch(error => {
-                console.error('Error refreshing quote:', error);
-            });
-        }
-    </script>
+    <!-- refreshQuote function that creates AJAX request to server to get updated stock data -->
+    <script src="/static/refreshQuote.js"></script>
 
 {% endblock %}

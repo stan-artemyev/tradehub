@@ -135,80 +135,6 @@ def market_is_open():
     else:
         return False
     
-    
-
-def get_data(symbol):
-    """Look up quote for symbol using yfinance."""
-    
-    # Prepare API request
-    symbol = symbol.upper()
-    
-    # Fetch the real-time market data
-    try:
-        # Create a Ticker object for the specified stock
-        stock = yf.Ticker(symbol)
-        stock_info = stock.info
-        
-        # Look the current price of the stock in info and then in fast_info
-        if "currentPrice" in stock_info:
-            current_price = usd(round(stock_info["currentPrice"], 2))
-        elif "last_price" in stock.fast_info:
-            current_price = usd(round(stock.fast_info["last_price"], 2))
-        else:
-            current_price = "-"
-        
-        previous_close = usd(round(stock_info.get("previousClose", 0) , 2))
-        open_price = usd(round(stock_info.get("open", 0), 2))
-        day_high = usd(round(stock_info.get("dayHigh", 0), 2))
-        day_low = usd(round(stock_info.get("dayLow", 0), 2))
-        bid_price = usd(round(stock_info.get("bid", 0), 2))
-        bid_size = stock_info.get("bidSize", "N/A")
-        ask_price = usd(round(stock_info.get("ask", 0), 2))
-        ask_size = stock_info.get("askSize", "N/A")
-        volume = custom_humanize(stock_info.get("volume", 0))
-        average_volume = custom_humanize(stock_info.get("averageVolume", 0))    
-        market_cap = custom_humanize(stock_info.get("marketCap", 0))
-        company_name = stock_info.get("longName", symbol)
-        
-        # Look for dividend_yield in stock_info
-        if "dividendYield" in stock_info:
-            dividend_yield = f'{round(stock_info["dividendYield"] * 100, 2)}%'
-        elif "yield" in stock_info:
-            dividend_yield = f'{round(stock_info["yield"] * 100, 2)}%'
-        else:
-            dividend_yield = "-"
-        
-        # Look for PE in stock_info
-        if "trailingPE" in stock_info:
-            pe = round(stock_info["trailingPE"], 2)
-        elif "forwardPE" in stock_info:
-            pe = round(stock_info["forwardPE"], 2)
-        else:
-            pe = "-"
-        
-        fifty_two_week_high = usd(round(stock_info.get("fiftyTwoWeekHigh", "N/A"), 2))
-        fifty_two_week_low = usd(round(stock_info["fiftyTwoWeekLow"], 2))
-        currency = stock_info.get("currency", "USD")
-        
-        # Get current time and format to HH:MM:SS
-        current_time = datetime.now().strftime("%H:%M:%S")
-        
-        # Check if the market is open
-        if market_is_open():
-            market = "Open"
-        else:
-            market = "Closed"
-        
-        return {"price": current_price, "previous_close": previous_close, "open_price": open_price, "volume": volume,
-                    "average_volume": average_volume, "market_cap": market_cap, "name": company_name, "dividend_yield": dividend_yield,
-                    "pe": pe, "fifty_two_week_high": fifty_two_week_high, "fifty_two_week_low": fifty_two_week_low, "bid_price": bid_price,
-                    "bid_size": bid_size, "ask_price": ask_price, "ask_size": ask_size, "day_high": day_high, "day_low": day_low, "currency": currency,
-                    "current_time": current_time, "market": market, "symbol": symbol
-                    }
-    except (KeyError, IndexError, ValueError):
-        return None
-    
-
 
 def lookup(symbol):
     """Look up quote for symbol."""
@@ -241,7 +167,94 @@ def lookup(symbol):
         return {"price": price, "symbol": symbol}
     except (KeyError, IndexError, requests.RequestException, ValueError):
         return None
+        
 
+def get_data(symbol):
+    """Look up quote for symbol using yfinance."""
+    
+    # Capitalize symbol
+    symbol = symbol.upper()
+    
+    # Fetch the real-time market data
+    try:
+        # Get the current price of the stock using lookup function
+        current_price = usd(lookup(symbol).get("price", 0))
+        
+        # Create a Ticker object for the specified stock
+        stock = yf.Ticker(symbol)
+        
+        # Get stock_info dictionary
+        stock_info = stock.info
+        
+        # Get necessary market details data from stock_info dictionary    
+        previous_close = usd(round(stock_info.get("previousClose", 0) , 2))
+        open_price = usd(round(stock_info.get("open", 0), 2))
+        day_high = usd(round(stock_info.get("dayHigh", 0), 2))
+        day_low = usd(round(stock_info.get("dayLow", 0), 2))
+        bid_price = usd(round(stock_info.get("bid", 0), 2))
+        bid_size = stock_info.get("bidSize", "N/A")
+        ask_price = usd(round(stock_info.get("ask", 0), 2))
+        ask_size = stock_info.get("askSize", "N/A")
+        volume = custom_humanize(stock_info.get("volume", 0))
+        average_volume = custom_humanize(stock_info.get("averageVolume", 0))    
+        market_cap = custom_humanize(stock_info.get("marketCap", 0))
+        company_name = stock_info.get("longName", symbol)
+                        
+        # Look for dividend_yield in stock_info
+        if "dividendYield" in stock_info:
+            dividend_yield = f'{round(stock_info["dividendYield"] * 100, 2)}%'
+        elif "yield" in stock_info:
+            dividend_yield = f'{round(stock_info["yield"] * 100, 2)}%'
+        else:
+            dividend_yield = "-"
+        
+        # Look for PE in stock_info
+        if "trailingPE" in stock_info:
+            pe = round(stock_info["trailingPE"], 2)
+        elif "forwardPE" in stock_info:
+            pe = round(stock_info["forwardPE"], 2)
+        else:
+            pe = "-"
+        
+        fifty_two_week_high = usd(round(stock_info.get("fiftyTwoWeekHigh", "N/A"), 2))
+        fifty_two_week_low = usd(round(stock_info["fiftyTwoWeekLow"], 2))
+        currency = stock_info.get("currency", "USD")
+        
+        # Calculate price difference
+        price_diff = round(float(current_price.replace("$", "")) - float(previous_close.replace("$", "")), 2)
+        
+        # Calculate percentage change
+        percentage_change = round(price_diff / float(previous_close.replace("$", "")) * 100, 2)
+        
+        # Set price difference color and add "+" to price_diff and percentage_change if > 0
+        if price_diff > 0:
+            price_diff = f"+{price_diff}"
+            percentage_change = f"+{percentage_change}"
+            price_diff_color = "green"
+        elif price_diff < 0:
+            price_diff_color = "red"
+        else:
+            price_diff_color = ""
+        
+        # Get current time and format to HH:MM:SS
+        current_time = datetime.now().strftime("%H:%M:%S")
+        
+        # Check if the market is open
+        if market_is_open():
+            market = "Open"
+        else:
+            market = "Closed"
+        
+        return {"price": current_price, "previous_close": previous_close, "open_price": open_price, "volume": volume,
+                    "average_volume": average_volume, "market_cap": market_cap, "name": company_name, "dividend_yield": dividend_yield,
+                    "pe": pe, "fifty_two_week_high": fifty_two_week_high, "fifty_two_week_low": fifty_two_week_low, "bid_price": bid_price,
+                    "bid_size": bid_size, "ask_price": ask_price, "ask_size": ask_size, "day_high": day_high, "day_low": day_low, "currency": currency,
+                    "current_time": current_time, "market": market, "symbol": symbol, "price_diff": price_diff, "price_diff_color": price_diff_color,
+                    "percentage_change": percentage_change
+                    }
+    except (KeyError, IndexError, ValueError):
+        return None
+    
 
 
 
