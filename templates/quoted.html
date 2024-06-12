@@ -23,7 +23,7 @@
         </div>
 
         <div class="mx-5">
-            <form id="tradeForm" action="" method="post">
+            <form id="tradeForm" action="trade" method="post">
                 <input type="hidden" name="symbol" id="symbol" value="{{ stock_data.symbol }}">
                 <div class="mb-3">
                     <input class="form-control mx-auto w-auto" name="shares" placeholder="Amount of shares" type="number" min="1">
@@ -39,8 +39,8 @@
     </div>
 
     <div class="mt-2">
-        <div><h6>Available shares to sell: <b>{{ available_shares }}</b></h6></div>
-        <div><h6>Available cash: <b>{{ user_cash }}</b></h6></div>
+        <h6>Available shares to sell: <b>{{ available_shares }}</b></h6>
+        <h6>Available cash: <b>{{ user_cash }}</b></h6>
     </div>    
 
     <br>
