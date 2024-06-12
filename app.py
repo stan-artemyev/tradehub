@@ -266,7 +266,13 @@ def quote():
             # Call the get_data() function to get stock data    
             stock_data = get_data(symbol)
             
-            return render_template("quoted.html", stock_data=stock_data)
+            # Query cash from DB
+            user_cash = usd(db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])[0]["cash"])
+            
+            # Query available shares from DB for a current logged in user
+            available_shares = db.execute("SELECT SUM(amount) AS sum FROM stocks WHERE user_id = ? AND symbol = ?", session["user_id"], symbol.upper())[0]["sum"]
+            
+            return render_template("quoted.html", stock_data=stock_data, user_cash=user_cash, available_shares=available_shares)
 
     # User reached route via GET
     else:

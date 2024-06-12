@@ -5,23 +5,45 @@
 {% endblock %}
 
 {% block main %}
-    <div class="container mb-3">
-        <h3>
-            <b>{{ stock_data.symbol }}</b> ({{ stock_data.name }})
-        </h3>
-        <div class="d-inline-flex align-items-center">
-            <h4 id="price">{{ stock_data.price }}</h4>
-            <p id="price_diff" class="mb-2 ms-2 me-1" style="color: {{ stock_data.price_diff_color }}">{{ stock_data.price_diff }}</p>
-            <p id="percentage_change" class="mb-2" style="color: {{ stock_data.price_diff_color }}">({{ stock_data.percentage_change }}%)</p>
+    <h2>
+        <b>{{ stock_data.symbol }}</b> ({{ stock_data.name }})
+    </h2>
+
+    <div class="d-inline-flex p-2">
+
+        <div class="mx-5">
+            
+            <div class="d-inline-flex align-items-center">
+                <h4 id="price">{{ stock_data.price }}</h4>
+                <p id="price_diff" class="mb-2 ms-2 me-1" style="color: {{ stock_data.price_diff_color }}">{{ stock_data.price_diff }}</p>
+                <p id="percentage_change" class="mb-2" style="color: {{ stock_data.price_diff_color }}">({{ stock_data.percentage_change }}%)</p>
+            </div>  
+            <p>As of <span id="current_time">{{ stock_data.current_time }}</span> <a href="#" onclick="refreshQuote('{{ stock_data.symbol }}'); return false;">Update</a></p>
+            Currently Market is: <b id="market">{{ stock_data.market }}</b>
+        </div>
+
+        <div class="mx-5">
+            <form id="tradeForm" action="" method="post">
+                <input type="hidden" name="symbol" id="symbol" value="{{ stock_data.symbol }}">
+                <div class="mb-3">
+                    <input class="form-control mx-auto w-auto" name="shares" placeholder="Amount of shares" type="number" min="1">
+                </div>
+                <div class="btn-group" role="group" aria-label="Buy/Sell">
+                    <button type="button" class="btn btn-success" onclick="setAction('buy')">Buy</button>
+                    <button type="button" class="btn btn-danger" onclick="setAction('sell')">Sell</button>
+                </div>
+            </form>
+            
         </div>
         
-        
-        
-
-        <p>As of <span id="current_time">{{ stock_data.current_time }}</span> <a href="#" onclick="refreshQuote('{{ stock_data.symbol }}'); return false;">Update</a></p>
-        Currently Market is: <b id="market">{{ stock_data.market }}</b>
     </div>
 
+    <div class="mt-2">
+        <div><h6>Available shares to sell: <b>{{ available_shares }}</b></h6></div>
+        <div><h6>Available cash: <b>{{ user_cash }}</b></h6></div>
+    </div>    
+
+    <br>
     <h4>Market details</h4>
 
     <div class="container d-flex flex-row">        
@@ -154,5 +176,8 @@
 
     <!-- refreshQuote function that creates AJAX request to server to get updated stock data -->
     <script src="/static/refreshQuote.js"></script>
+
+    <!-- Script that handles Trade stocks (Buy or Sell based on the button clicked)-->
+    <script src="/static/tradeForm.js"></script>
 
 {% endblock %}
