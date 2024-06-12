@@ -64,9 +64,7 @@ def index():
         stock["price"] = usd(stock["price"])
 
     # Query cash from DB
-    user_cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])[
-        0
-    ]["cash"]
+    user_cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])[0]["cash"]
 
     # Calculate TOTAL (stock values + user cash)
     total = usd(total + user_cash)
@@ -86,7 +84,10 @@ def buy():
 
     # User reached route via GET
     if request.method == "GET":
-        return render_template("buy.html")
+        # Query cash from DB
+        user_cash = usd(db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])[0]["cash"])
+        
+        return render_template("buy.html", user_cash=user_cash)
 
     # User reached route via POST (by submiting a buy button)
     else:
