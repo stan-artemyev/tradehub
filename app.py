@@ -450,6 +450,3 @@ def change_password():
 
         # Redirect user to home page
         return redirect("/")
-
-    
-    
