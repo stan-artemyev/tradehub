@@ -24,6 +24,7 @@
 
         <nav class="bg-light border navbar navbar-expand-md navbar-light">
             <div class="container-fluid">
+                <a class="navbar-brand" href="/"><img src="static/logo.png" alt="TradeHub Logo" width="60" height="60"></a>
                 <a class="navbar-brand" href="/"><span class="blue">T</span><span class="red">r</span><span class="yellow">a</span><span class="green">d</span><span class="purple">e</span><span class="red">Hub</span></a>
                 <button aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-bs-target="#navbar" data-bs-toggle="collapse" type="button">
                     <span class="navbar-toggler-icon"></span>
@@ -41,9 +42,9 @@
                             Account
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item disabled" aria-disabled="true">Welcome,<p>{{ username }}!</p></a></li>
+                                <li><a class="dropdown-item disabled" aria-disabled="true">Welcome,<p><b>{{ username }}!</b></p></a></li>
                                 <li><hr class="dropdown-divider"></hr></li>
-                                <li><a class="dropdown-item" href="#">Link 2</a></li>
+                                <li><a class="dropdown-item" href="#">Deposit/Withdraw</a></li>
                                 <li><a class="dropdown-item" href="/change_password">Change Password</a></li>
                                 <li><hr class="dropdown-divider"></hr></li>
                                 <li><a class="dropdown-item" href="/logout">Log out</a></li>
