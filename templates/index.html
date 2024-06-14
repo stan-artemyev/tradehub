@@ -10,17 +10,21 @@
         <thead class="table-danger">
             <tr>
                 <th>Symbol</th>
+                <th>Name</th>
                 <th>Shares</th>
                 <th>Price</th>
-                <th>Total</th>
+                <th>Total</th>                
             </tr>
         </thead>
         <tbody>
         <!-- Loop through the DB to display stocks in this table -->
             {% for stock in stocks %}
                 <tr>
-                    <td>
+                    <td style="text-align: left;">
                         {{ stock.symbol }}
+                    </td>
+                    <td>
+                        {{ stock.symbol_name }}
                     </td>
                     <td>
                         {{ stock.sum }}
@@ -31,9 +35,20 @@
                     <td>
                         {{ stock.total }}
                     </td>
+                    <td style="text-align: center;">
+                        <input type="hidden" name="symbol" id="symbol" value="{{ stock.symbol }}">
+                        <div class="m-1">
+                            <input class="form-control mx-auto w-auto" name="shares" placeholder="Amount of shares" type="number" min="1">
+                        </div>
+                        <div class="btn-group" role="group" aria-label="Buy/Sell">
+                            <button type="button" class="btn btn-success" onclick="setAction('buy')">Buy</button>
+                            <button type="button" class="btn btn-danger" onclick="setAction('sell')">Sell</button>
+                        </div>
+                    </td>
                 </tr>
             {% endfor %}
             <tr class="table-primary">
+                <td></td>
                 <td></td>
                 <td></td>
                 <td>
@@ -44,6 +59,7 @@
                 </td>
             </tr>
             <tr class="table-success">
+                <td></td>
                 <td></td>
                 <td></td>
                 <td>

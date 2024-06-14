@@ -48,7 +48,7 @@ def index():
 
     # Query stocks DB to get stocks possessed and their amounts for a logged-in user
     stocks = db.execute(
-        "SELECT symbol, SUM(amount) AS sum FROM stocks WHERE user_id = ? GROUP BY symbol HAVING sum > 0",
+        "SELECT symbol, symbol_name, SUM(amount) AS sum FROM stocks WHERE user_id = ? GROUP BY symbol HAVING sum > 0",
         session["user_id"],
     )
 
@@ -62,6 +62,7 @@ def index():
         # Convert each stock price and stock total to USD format
         stock["total"] = usd(stock["total"])
         stock["price"] = usd(stock["price"])
+        # Get stock name
 
     # Query cash from DB
     user_cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])[0]["cash"]
@@ -131,11 +132,15 @@ def buy():
         else:
             # Get current date/time and convert to SQL format YYYY-MM-DD HH:MM:SS
             date_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            # Get stock name
+            symbol_name = get_data(symbol)["symbol_name"]
 
             # Buy stocks
             db.execute(
-                "INSERT INTO stocks (symbol, price, amount, date_time, user_id) VALUES (?, ?, ?, ?, ?)",
+                "INSERT INTO stocks (symbol, symbol_name, price, amount, date_time, user_id) VALUES (?, ?, ?, ?, ?, ?)",
                 symbol.upper(),
+                symbol_name,
                 price,
                 shares,
                 date_time,
@@ -162,7 +167,7 @@ def history():
 
     # Query transactions history from stocks table
     stocks = db.execute(
-        "SELECT symbol, price, amount, date_time FROM stocks WHERE user_id = ?",
+        "SELECT symbol, symbol_name, price, amount, date_time FROM stocks WHERE user_id = ?",
         session["user_id"],
     )
 

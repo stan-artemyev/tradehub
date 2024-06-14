@@ -164,6 +164,7 @@ def lookup(symbol):
         # CSV header: Date,Open,High,Low,Close,Adj Close,Volume
         quotes = list(csv.DictReader(response.content.decode("utf-8").splitlines()))
         price = round(float(quotes[-1]["Adj Close"]), 2)
+        
         return {"price": price, "symbol": symbol}
     except (KeyError, IndexError, requests.RequestException, ValueError):
         return None
@@ -198,7 +199,7 @@ def get_data(symbol):
         volume = custom_humanize(stock_info.get("volume", 0))
         average_volume = custom_humanize(stock_info.get("averageVolume", 0))    
         market_cap = custom_humanize(stock_info.get("marketCap", 0))
-        company_name = stock_info.get("longName", symbol)
+        symbol_name = stock_info.get("longName", symbol)
                         
         # Look for dividend_yield in stock_info
         if "dividendYield" in stock_info:
@@ -246,7 +247,7 @@ def get_data(symbol):
             market = "Closed"
         
         return {"price": current_price, "previous_close": previous_close, "open_price": open_price, "volume": volume,
-                    "average_volume": average_volume, "market_cap": market_cap, "name": company_name, "dividend_yield": dividend_yield,
+                    "average_volume": average_volume, "market_cap": market_cap, "symbol_name": symbol_name, "dividend_yield": dividend_yield,
                     "pe": pe, "fifty_two_week_high": fifty_two_week_high, "fifty_two_week_low": fifty_two_week_low, "bid_price": bid_price,
                     "bid_size": bid_size, "ask_price": ask_price, "ask_size": ask_size, "day_high": day_high, "day_low": day_low, "currency": currency,
                     "current_time": current_time, "market": market, "symbol": symbol, "price_diff": price_diff, "price_diff_color": price_diff_color,

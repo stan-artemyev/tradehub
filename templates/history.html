@@ -10,6 +10,7 @@
         <thead class="table-danger">
             <tr>
                 <th style="text-align: left;">Symbol</th>
+                <th>Name</th>
                 <th>Shares</th>
                 <th>Price</th>
                 <th>Transacted</th>
@@ -23,13 +24,16 @@
                         {{ stock.symbol }}
                     </td>
                     <td>
+                        {{ stock.symbol_name }}
+                    </td>
+                    <td>
                         {{ stock.amount }}
                     </td>
                     <td>
                         {{ stock.price | usd }}
                     </td>
                     <td>
-                        {{ stock.date_time}}
+                        {{ stock.date_time }}
                     </td>
                 </tr>
             {% endfor %}

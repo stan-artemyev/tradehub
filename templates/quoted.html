@@ -6,7 +6,7 @@
 
 {% block main %}
     <h2>
-        <b>{{ stock_data.symbol }}</b> ({{ stock_data.name }})
+        <b>{{ stock_data.symbol }}</b> ({{ stock_data.symbol_name }})
     </h2>
 
     <div class="d-inline-flex p-2">
@@ -32,8 +32,7 @@
                     <button type="button" class="btn btn-success" onclick="setAction('buy')">Buy</button>
                     <button type="button" class="btn btn-danger" onclick="setAction('sell')">Sell</button>
                 </div>
-            </form>
-            
+            </form>            
         </div>
         
     </div>
