@@ -9,67 +9,71 @@
     <table class="table table-hover">
         <thead class="table-danger">
             <tr>
-                <th>Symbol</th>
-                <th>Name</th>
-                <th>Shares</th>
-                <th>Price</th>
-                <th>Total</th>                
+                <th class="text-start">Name</th>
+                <th>Total value</th>
+                <th>Today's price</th>
+                <th>All time return</th>
+                <th></th>
+                
             </tr>
         </thead>
         <tbody>
         <!-- Loop through the DB to display stocks in this table -->
             {% for stock in stocks %}
                 <tr>
-                    <td style="text-align: left;">
-                        {{ stock.symbol }}
-                    </td>
-                    <td>
-                        {{ stock.symbol_name }}
-                    </td>
-                    <td>
-                        {{ stock.sum }}
-                    </td>
-                    <td>
-                        {{ stock.price }}
-                    </td>
-                    <td>
-                        {{ stock.total }}
-                    </td>
-                    <td style="text-align: center;">
-                        <input type="hidden" name="symbol" id="symbol" value="{{ stock.symbol }}">
-                        <div class="m-1">
-                            <input class="form-control mx-auto w-auto" name="shares" placeholder="Amount of shares" type="number" min="1">
-                        </div>
-                        <div class="btn-group" role="group" aria-label="Buy/Sell">
-                            <button type="button" class="btn btn-success" onclick="setAction('buy')">Buy</button>
-                            <button type="button" class="btn btn-danger" onclick="setAction('sell')">Sell</button>
-                        </div>
-                    </td>
+                    <form id="form-{{ stock.symbol }}" method="POST">
+                        <td class="text-start">
+                            <b>{{ stock.symbol }}</b>
+                            <p>{{ stock.symbol_name }}</p>
+                        </td>
+                        <td>
+                            <b>{{ stock.total }}</b>
+                            <p>{{ stock.sum }} shares</p>
+                        </td>
+                        <td>
+                            {{ stock.price }}
+                        </td>
+                        <td></td>
+                        
+                        <td style="text-align: center;">
+                            <input type="hidden" name="symbol" value="{{ stock.symbol }}">
+                            <div class="m-1">
+                                <input class="form-control mx-auto w-75" name="shares" placeholder="Shares" type="number" min="1" id="shares-{{ stock.symbol }}">
+                            </div>
+                            <div class="btn-group" role="group" aria-label="Buy/Sell">
+                                <button type="button" class="btn btn-success" onclick="setAction('{{ stock.symbol }}', 'buy')">Buy</button>
+                                <button type="button" class="btn btn-danger" onclick="setAction('{{ stock.symbol }}', 'sell')">Sell</button>
+                            </div>
+                        </td>
+                    </form>
                 </tr>
             {% endfor %}
             <tr class="table-primary">
-                <td></td>
-                <td></td>
-                <td></td>
-                <td>
+                <td class="text-start">
                     <b>CASH</b>
                 </td>
                 <td>
-                    {{ cash }}
+                    <b>{{ cash }}</b>
                 </td>
-            </tr>
-            <tr class="table-success">
                 <td></td>
                 <td></td>
                 <td></td>
-                <td>
+                </tr>
+            <tr class="table-success">                
+                <td class="text-start">
                     <b>TOTAL</b>
                 </td>
                 <td>
-                    {{ total }}
+                    <b>{{ total }}</b>
                 </td>
+                <td></td>
+                <td></td>
+                <td></td>                
             </tr>
-
         </tbody>
     </table>
+
+    <!--Buy/Sell stocks available in portfolio script-->
+    <script src="/static/index.js"></script>
 {% endblock %}
+
