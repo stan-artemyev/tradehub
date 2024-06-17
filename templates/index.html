@@ -10,10 +10,11 @@
         <thead class="table-danger">
             <tr>
                 <th class="text-start">Name</th>
-                <th>Total value</th>
+                <th>Average price</th>
                 <th>Today's price</th>
-                <th>All time return</th>
-                <th></th>
+                <th>Total value</th>
+                <th>Performance</th>
+                <th class="text-center">Trade</th>
                 
             </tr>
         </thead>
@@ -27,13 +28,23 @@
                             <p>{{ stock.symbol_name }}</p>
                         </td>
                         <td>
-                            <b>{{ stock.total }}</b>
+                            <b>{{ stock.average_price | usd }}</b>
+                        </td>
+                        <td>
+                            <b>{{ stock.price | usd }}</b>
+                            <p class="{% if stock.percentage_change >= 0 %} text-success {% else %} text-danger {% endif %}">
+                                {% if stock.percentage_change > 0 %}+{% endif %}{{ stock.percentage_change }}%
+                            </p>
+                        </td>
+                        <td>
+                            <b>{{ stock.total | usd }}</b>
                             <p>{{ stock.sum }} shares</p>
                         </td>
                         <td>
-                            {{ stock.price }}
+                            <b>{{ stock.performance | usd }}</b>
+                            <p class="{% if stock.performance_percentage >= 0 %} text-success {% else %} text-danger {% endif %}">
+                                {% if stock.performance_percentage > 0 %}+{% endif %}{{ stock.performance_percentage }}%
                         </td>
-                        <td></td>
                         
                         <td style="text-align: center;">
                             <input type="hidden" name="symbol" value="{{ stock.symbol }}">
@@ -48,26 +59,32 @@
                     </form>
                 </tr>
             {% endfor %}
-            <tr class="table-primary">
+            <tr class="table-success">
                 <td class="text-start">
                     <b>CASH</b>
                 </td>
-                <td>
-                    <b>{{ cash }}</b>
-                </td>
                 <td></td>
+                <td></td>
+                <td>
+                    <b>{{ cash | usd }}</b>
+                </td>
                 <td></td>
                 <td></td>
                 </tr>
-            <tr class="table-success">                
-                <td class="text-start">
+            <tr class="table-primary">                
+                <td class="text-start align-middle">
                     <b>TOTAL</b>
                 </td>
-                <td>
-                    <b>{{ total }}</b>
+                <td></td>
+                <td></td>
+                <td class="align-middle">
+                    <b>{{ total | usd }}</b>
                 </td>
-                <td></td>
-                <td></td>
+                <td>
+                    <b>{{ total_performance | usd}}</b>
+                    <p class="{% if total_performance_percentage >= 0 %} text-success {% else %} text-danger {% endif %}">
+                        {% if total_performance_percentage > 0 %}+{% endif %}{{ total_performance_percentage }}%
+                </td>
                 <td></td>                
             </tr>
         </tbody>

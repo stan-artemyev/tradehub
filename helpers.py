@@ -54,7 +54,14 @@ def login_required(f):
 
 def usd(value):
     """Format value as USD."""
-    return f"${value:,.2f}"
+    
+    if value < 0:
+        value = abs(value)
+        return f"-${value:,.2f}"
+    else:
+        return f"${value:,.2f}"
+    
+
 
 
 def custom_humanize(number):
@@ -164,8 +171,9 @@ def lookup(symbol):
         # CSV header: Date,Open,High,Low,Close,Adj Close,Volume
         quotes = list(csv.DictReader(response.content.decode("utf-8").splitlines()))
         price = round(float(quotes[-1]["Adj Close"]), 2)
+        previous_close = round(float(quotes[-2]["Adj Close"]), 2)
         
-        return {"price": price, "symbol": symbol}
+        return {"price": price, "previous_close": previous_close, "symbol": symbol}
     except (KeyError, IndexError, requests.RequestException, ValueError):
         return None
         

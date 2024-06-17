@@ -46,38 +46,50 @@ def after_request(response):
 def index():
     """Show portfolio of stocks"""
 
-    # Query stocks DB to get stocks possessed and their amounts for a logged-in user
     stocks = db.execute(
-        "SELECT symbol, symbol_name, SUM(amount) AS sum FROM stocks WHERE user_id = ? GROUP BY symbol HAVING sum > 0",
-        session["user_id"],
+        "SELECT symbol, symbol_name, SUM(amount) AS sum, AVG(price) AS average_price FROM stocks WHERE user_id = ? GROUP BY symbol HAVING sum > 0", session["user_id"]
     )
 
     # Get current prices of each stock that the user has and calculate their total
-    total = 0
+    total = 0 # initialize total
+    total_performance = 0 # initialize total_performance
 
     for stock in stocks:
-        stock["price"] = lookup(stock["symbol"])["price"]
+        # Get real-time stock price
+        stock_info = lookup(stock["symbol"])
+        stock["price"] = stock_info["price"] 
+        
+        # Calculate today's price percentage difference
+        stock["previous_close"] = stock_info["previous_close"]
+        stock["percentage_change"] = round((
+            (stock["price"] - stock["previous_close"]) / stock["previous_close"]
+        ) * 100, 2)
+        
+        # Calculate total current stock value
         stock["total"] = stock["sum"] * stock["price"]
         total += stock["total"]
-        # Convert each stock price and stock total to USD format
-        stock["total"] = usd(stock["total"])
-        stock["price"] = usd(stock["price"])
         
-        # Calculate All time return and percentage change
-        #stock["all_time_return"] = # (stock_average_price * stock["sum"]) - stock["total"]
-        #stock["all_time_return_percentage_change"] = # (stock_average_price * shares) / (stock_price * shares   
+        # Calculate performance and performance percentage
+        total_investment = stock["sum"] * stock["average_price"]
+        stock["performance"] = stock["total"] - total_investment
+        stock["performance_percentage"] = round(stock["performance"] / total_investment * 100, 2)
+        
+        total_performance += stock["performance"]
+        
+    # Calculate total performance percentage change
+    total_performance_percentage = round(total_performance / total * 100, 2)
 
     # Query cash from DB
     user_cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])[0]["cash"]
 
     # Calculate TOTAL (stock values + user cash)
-    total = usd(total + user_cash)
+    total = total + user_cash
     
     # Get username
     username = db.execute("SELECT username FROM users WHERE id = ?", session["user_id"])[0]["username"]
 
     return render_template(
-        "index.html", username=username, stocks=stocks, cash=usd(user_cash), total=total
+        "index.html", username=username, stocks=stocks, cash=user_cash, total=total, total_performance=total_performance, total_performance_percentage=total_performance_percentage
     )
 
 
@@ -89,7 +101,7 @@ def buy():
     # User reached route via GET
     if request.method == "GET":
         # Query cash from DB
-        user_cash = usd(db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])[0]["cash"])
+        user_cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])[0]["cash"]
         
         return render_template("buy.html", user_cash=user_cash)
 
@@ -276,7 +288,7 @@ def quote():
             stock_data = get_data(symbol)
             
             # Query cash from DB
-            user_cash = usd(db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])[0]["cash"])
+            user_cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])[0]["cash"]
             
             # Query available shares from DB for a current logged in user
             available_shares = db.execute("SELECT SUM(amount) AS sum FROM stocks WHERE user_id = ? AND symbol = ?", session["user_id"], symbol.upper())[0]["sum"]
