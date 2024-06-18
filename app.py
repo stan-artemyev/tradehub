@@ -28,9 +28,6 @@ Session(app)
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///finance.db")
 
-# Define username as a global variable
-username = "user"
-
 
 @app.after_request
 def after_request(response):
@@ -39,6 +36,17 @@ def after_request(response):
     response.headers["Expires"] = 0
     response.headers["Pragma"] = "no-cache"
     return response
+
+
+# Define username variable and using context processor function to make it available to all tempaltes
+@app.context_processor
+def inject_username():
+    if "user_id" in session:
+        user_id = session["user_id"]
+        username = db.execute("SELECT username FROM users WHERE id = ?", user_id)[0]["username"]
+        return {"username": username}
+    else:
+        return {"username": None}
 
 
 @app.route("/")
@@ -84,12 +92,9 @@ def index():
 
     # Calculate TOTAL (stock values + user cash)
     total = total + user_cash
-    
-    # Get username
-    username = db.execute("SELECT username FROM users WHERE id = ?", session["user_id"])[0]["username"]
 
     return render_template(
-        "index.html", username=username, stocks=stocks, cash=user_cash, total=total, total_performance=total_performance, total_performance_percentage=total_performance_percentage
+        "index.html", stocks=stocks, cash=user_cash, total=total, total_performance=total_performance, total_performance_percentage=total_performance_percentage
     )
 
 
