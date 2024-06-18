@@ -474,3 +474,51 @@ def change_password():
 
         # Redirect user to home page
         return redirect("/")
+
+@app.route("/money", methods=["GET", "POST"])
+@login_required
+def money():
+    """Deposit/Withdray funds"""
+    # User reached route via GET (as by clicking a link or via redirect)
+    if request.method == "GET":
+        # Query user's cash balance
+        user_cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])[0]["cash"]
+        return render_template("money.html", user_cash=user_cash)
+
+    # User reached route via POST (as by submitting a form via POST)
+    else:
+        # Get data from the moneyForm
+        amount = request.form.get("amount")
+        action = request.form.get("action")
+
+        # Ensure amount was submitted
+        if not amount:
+            return apology("must provide amount", 400)
+        elif float(amount) <= 0:
+            return apology("amount must be greater than 0", 400)
+
+        # Ensure action was submitted
+        elif not action:
+            return apology("must provide action", 400)
+
+        # Get user's cash value
+        user_cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])[0]["cash"]
+
+        # Deposit
+        if action == "deposit":
+            cash = user_cash + float(amount)
+            db.execute("UPDATE users SET cash = ? WHERE id = ?", cash, session["user_id"])
+            flash(f"${amount} was deposited!")
+            return redirect("/")
+        # Withdraw
+        elif action == "withdraw":
+            if float(amount) > user_cash:
+                return apology("insufficient funds", 400)
+            cash = user_cash - float(amount)
+            db.execute("UPDATE users SET cash = ? WHERE id = ?", cash, session["user_id"])
+            flash(f"${amount} was withdrawn")
+            return redirect("/")
+        else:
+            return apology("invalid action", 400)
+        
+
