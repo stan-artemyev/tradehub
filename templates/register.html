@@ -5,7 +5,8 @@
 {% endblock %}
 
 {% block main %}
-<h4>Register</h4>
+<div class="container shadow bg-light">
+    <h2>Register</h2>
     <form action="/register" method="post">
         <div class="mb-3">
             <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="username" placeholder="Username" type="text">
@@ -18,4 +19,7 @@
         </div>
         <button class="btn btn-primary" type="submit">Register</button>
     </form>
+</div>
+
+<link href="/static/login.css" rel="stylesheet">
 {% endblock %}

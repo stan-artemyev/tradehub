@@ -46,7 +46,7 @@ def inject_username():
         username = db.execute("SELECT username FROM users WHERE id = ?", user_id)[0]["username"]
         return {"username": username}
     else:
-        return {"username": None}
+        return {"username": "None"}
 
 
 @app.route("/")
@@ -85,7 +85,10 @@ def index():
         total_performance += stock["performance"]
         
     # Calculate total performance percentage change
-    total_performance_percentage = round(total_performance / total * 100, 2)
+    if total == 0:
+        total_performance_percentage = 0
+    else:
+        total_performance_percentage = round(total_performance / total * 100, 2)
 
     # Query cash from DB
     user_cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])[0]["cash"]
@@ -155,11 +158,14 @@ def buy():
             
             # Get stock name
             symbol_name = get_data(symbol)["symbol_name"]
+            
+            # Capitalize symbol
+            symbol = symbol.upper()
 
             # Buy stocks
             db.execute(
                 "INSERT INTO stocks (symbol, symbol_name, price, amount, date_time, user_id) VALUES (?, ?, ?, ?, ?, ?)",
-                symbol.upper(),
+                symbol,
                 symbol_name,
                 price,
                 shares,
@@ -174,7 +180,7 @@ def buy():
             )
 
         # Alert the user
-        flash("Bought!")
+        flash(f"{symbol} x {shares} bought!")
 
         # Redirect the user to the home page
         return redirect("/")
@@ -406,12 +412,15 @@ def sell():
             
             # Get stock name
             symbol_name = get_data(symbol)["symbol_name"]
+            
+            # Capitalize symbol
+            symbol = symbol.upper()
 
             # Sell shares and update DB with negative amount of shares and updated cash value
             date_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             db.execute(
                 "INSERT INTO stocks (symbol, symbol_name, price, amount, date_time, user_id) VALUES (?, ?, ?, ?, ?, ?);",
-                symbol.upper(),
+                symbol,
                 symbol_name,
                 price,
                 -int(shares),
@@ -425,7 +434,7 @@ def sell():
             )
 
             # Alert the user
-            flash("Sold!")
+            flash(f"{symbol} x {shares} sold!")
 
             # Redirect the user to the home page
             return redirect("/")

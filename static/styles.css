@@ -26,3 +26,30 @@ tr {
     text-align: right;
 }
 
+.dropdown-menu {
+    max-width: 300px; /* Set a max-width to limit dropdown width */
+}
+.dropdown-item {
+    white-space: normal !important; /* Allow text to wrap */
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-text {
+    font-size: 2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.logo-text-first {
+    color: #007bff; /* Blue color for 'Trade' */
+}
+
+.logo-text-second {
+    color: #28a745; /* Green color for 'Hub' */
+}
+
