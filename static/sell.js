@@ -1,4 +1,4 @@
-// Updates number of available shares based on the user"s selection
+// Updates number of available shares based on the user's selection
 
 document.getElementById("symbolSelect").addEventListener("change", function() {
     var selectedOption = this.selectedOptions[0];
