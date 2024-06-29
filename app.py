@@ -43,7 +43,9 @@ def after_request(response):
 def inject_username():
     if "user_id" in session:
         user_id = session["user_id"]
-        username = db.execute("SELECT username FROM users WHERE id = ?", user_id)[0]["username"]
+        username = db.execute("SELECT username FROM users WHERE id = ?", user_id)[0][
+            "username"
+        ]
         return {"username": username}
     else:
         return {"username": "None"}
@@ -55,35 +57,40 @@ def index():
     """Show portfolio of stocks"""
 
     stocks = db.execute(
-        "SELECT symbol, symbol_name, SUM(amount) AS sum, AVG(price) AS average_price FROM stocks WHERE user_id = ? GROUP BY symbol HAVING sum > 0", session["user_id"]
+        "SELECT symbol, symbol_name, SUM(amount) AS sum, AVG(price) AS average_price FROM stocks WHERE user_id = ? GROUP BY symbol HAVING sum > 0",
+        session["user_id"],
     )
 
     # Get current prices of each stock that the user has and calculate their total
-    total = 0 # initialize total
-    total_performance = 0 # initialize total_performance
+    total = 0  # initialize total
+    total_performance = 0  # initialize total_performance
 
     for stock in stocks:
         # Get real-time stock price
         stock_info = lookup(stock["symbol"])
-        stock["price"] = stock_info["price"] 
-        
+        stock["price"] = stock_info["price"]
+
         # Calculate today's price percentage difference
         stock["previous_close"] = stock_info["previous_close"]
-        stock["percentage_change"] = round((
-            (stock["price"] - stock["previous_close"]) / stock["previous_close"]
-        ) * 100, 2)
-        
+        stock["percentage_change"] = round(
+            ((stock["price"] - stock["previous_close"]) / stock["previous_close"])
+            * 100,
+            2,
+        )
+
         # Calculate total current stock value
         stock["total"] = stock["sum"] * stock["price"]
         total += stock["total"]
-        
+
         # Calculate performance and performance percentage
         total_investment = stock["sum"] * stock["average_price"]
         stock["performance"] = stock["total"] - total_investment
-        stock["performance_percentage"] = round(stock["performance"] / total_investment * 100, 2)
-        
+        stock["performance_percentage"] = round(
+            stock["performance"] / total_investment * 100, 2
+        )
+
         total_performance += stock["performance"]
-        
+
     # Calculate total performance percentage change
     if total == 0:
         total_performance_percentage = 0
@@ -91,13 +98,20 @@ def index():
         total_performance_percentage = round(total_performance / total * 100, 2)
 
     # Query cash from DB
-    user_cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])[0]["cash"]
+    user_cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])[
+        0
+    ]["cash"]
 
     # Calculate TOTAL (stock values + user cash)
     total = total + user_cash
 
     return render_template(
-        "index.html", stocks=stocks, cash=user_cash, total=total, total_performance=total_performance, total_performance_percentage=total_performance_percentage
+        "index.html",
+        stocks=stocks,
+        cash=user_cash,
+        total=total,
+        total_performance=total_performance,
+        total_performance_percentage=total_performance_percentage,
     )
 
 
@@ -109,8 +123,10 @@ def buy():
     # User reached route via GET
     if request.method == "GET":
         # Query cash from DB
-        user_cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])[0]["cash"]
-        
+        user_cash = db.execute(
+            "SELECT cash FROM users WHERE id = ?", session["user_id"]
+        )[0]["cash"]
+
         return render_template("buy.html", user_cash=user_cash)
 
     # User reached route via POST (by submiting a buy button)
@@ -155,10 +171,10 @@ def buy():
         else:
             # Get current date/time and convert to SQL format YYYY-MM-DD HH:MM:SS
             date_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            
+
             # Get stock name
             symbol_name = get_data(symbol)["symbol_name"]
-            
+
             # Capitalize symbol
             symbol = symbol.upper()
 
@@ -230,7 +246,7 @@ def login():
 
         # Remember which user has logged in
         session["user_id"] = rows[0]["id"]
-        
+
         # Assign the username to the global variable
         global username
         username = request.form.get("username")
@@ -261,7 +277,7 @@ def quote():
 
     # User reached route via POST (by AJAX request from refreshQuote)
     if request.method == "POST":
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
             try:
                 # Log headers and JSON payload
                 print("Headers:", request.headers)
@@ -274,41 +290,58 @@ def quote():
 
                 # Call the get_data() function to get the updated stock data
                 stock_data = get_data(symbol)
-                
+
                 if stock_data is None:
                     return jsonify({"error": "Failed to fetch stock data"}), 500
 
                 return jsonify(stock_data)
             except Exception as e:
                 print(f"Error processing request: {e}")  # Log the error
-                return jsonify({"error": "An error occurred while processing the request"}), 500
-    
+                return (
+                    jsonify(
+                        {"error": "An error occurred while processing the request"}
+                    ),
+                    500,
+                )
+
         # User reached route via GET (by clicking a quote button)
-        else:     
+        else:
             symbol = request.form.get("symbol")
 
             # Ensure symbol was submitted
             if not symbol:
                 return apology("must provide ticker symbol")
-            
+
             # Ensure provided symbol is correct
             elif lookup(symbol) == None:
                 return apology("invalid symbol")
-            
-            # Call the get_data() function to get stock data    
+
+            # Call the get_data() function to get stock data
             stock_data = get_data(symbol)
-            
+
             # Query cash from DB
-            user_cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])[0]["cash"]
-            
+            user_cash = db.execute(
+                "SELECT cash FROM users WHERE id = ?", session["user_id"]
+            )[0]["cash"]
+
             # Query available shares from DB for a current logged in user
-            available_shares = db.execute("SELECT SUM(amount) AS sum FROM stocks WHERE user_id = ? AND symbol = ?", session["user_id"], symbol.upper())[0]["sum"]
-            
-            return render_template("quoted.html", stock_data=stock_data, user_cash=user_cash, available_shares=available_shares)
+            available_shares = db.execute(
+                "SELECT SUM(amount) AS sum FROM stocks WHERE user_id = ? AND symbol = ?",
+                session["user_id"],
+                symbol.upper(),
+            )[0]["sum"]
+
+            return render_template(
+                "quoted.html",
+                stock_data=stock_data,
+                user_cash=user_cash,
+                available_shares=available_shares,
+            )
 
     # User reached route via GET
     else:
-        return render_template("quote.html")        
+        return render_template("quote.html")
+
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -409,10 +442,10 @@ def sell():
             # Get current stock price and total value
             price = lookup(symbol)["price"]
             total = price * int(shares)
-            
+
             # Get stock name
             symbol_name = get_data(symbol)["symbol_name"]
-            
+
             # Capitalize symbol
             symbol = symbol.upper()
 
@@ -489,6 +522,7 @@ def change_password():
         # Redirect user to home page
         return redirect("/")
 
+
 @app.route("/money", methods=["GET", "POST"])
 @login_required
 def money():
@@ -496,7 +530,9 @@ def money():
     # User reached route via GET (as by clicking a link or via redirect)
     if request.method == "GET":
         # Query user's cash balance
-        user_cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])[0]["cash"]
+        user_cash = db.execute(
+            "SELECT cash FROM users WHERE id = ?", session["user_id"]
+        )[0]["cash"]
         return render_template("money.html", user_cash=user_cash)
 
     # User reached route via POST (as by submitting a form via POST)
@@ -516,12 +552,16 @@ def money():
             return apology("must provide action", 400)
 
         # Get user's cash value
-        user_cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])[0]["cash"]
+        user_cash = db.execute(
+            "SELECT cash FROM users WHERE id = ?", session["user_id"]
+        )[0]["cash"]
 
         # Deposit
         if action == "deposit":
             cash = user_cash + float(amount)
-            db.execute("UPDATE users SET cash = ? WHERE id = ?", cash, session["user_id"])
+            db.execute(
+                "UPDATE users SET cash = ? WHERE id = ?", cash, session["user_id"]
+            )
             flash(f"${amount} was deposited!")
             return redirect("/")
         # Withdraw
@@ -529,10 +569,10 @@ def money():
             if float(amount) > user_cash:
                 return apology("insufficient funds", 400)
             cash = user_cash - float(amount)
-            db.execute("UPDATE users SET cash = ? WHERE id = ?", cash, session["user_id"])
+            db.execute(
+                "UPDATE users SET cash = ? WHERE id = ?", cash, session["user_id"]
+            )
             flash(f"${amount} was withdrawn")
             return redirect("/")
         else:
             return apology("invalid action", 400)
-        
-
