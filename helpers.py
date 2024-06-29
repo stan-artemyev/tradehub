@@ -1,11 +1,10 @@
 import csv
-from datetime import datetime, time, date, timedelta
+from datetime import datetime, time, timedelta
 import pytz
 import requests
 import urllib
 import uuid
 import yfinance as yf
-import logging
 
 from flask import redirect, render_template, request, session
 from functools import wraps
@@ -61,8 +60,6 @@ def usd(value):
     else:
         return f"${value:,.2f}"
     
-
-
 
 def custom_humanize(number):
     """
