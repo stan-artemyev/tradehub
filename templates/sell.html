@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Sell
+{% endblock %}
+
+{% block main %}
+    <h2>Sell</h2>
+    <form action="/sell" method="post">
+        <div class="mb-3">
+            <select class="form-select mx-auto w-auto" name="symbol" id="symbolSelect">
+                <option disabled selected>Symbol</option>
+            <!-- Loop through the DB to Display user's stocks in possesion -->
+                {% for stock in stocks %}
+                    <option value="{{ stock.symbol }}" data-available-shares="{{ stock.sum }}">{{ stock.symbol }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <input class="form-control mx-auto w-auto" name="shares" placeholder="Shares" type="number" min="1">
+        </div>
+        <button class="btn btn-danger" type="submit">Sell</button>
+    </form>
+    <div id="available_shares_container" class="mt-3" hidden>
+        <h6>Available shares to sell: <b id="available_shares"></b></h6>
+    </div>
+
+    <!-- Updates number of available shares based on the user's selection -->
+    <script src="/static/sell.js"></script>
+{% endblock %}

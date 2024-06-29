@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Python Virual Env
+/cs50_project_venv
+
 # Distribution / packaging
 .Python
 env/
@@ -18,6 +21,7 @@ build/
 
 # Flask specific
 instance/
+flask_session/
 # Add later *.db
 # Add later *.sqlite3
 
@@ -41,3 +45,5 @@ instance/
 .LSOverride
 Icon
 ._.DS_Store
+
+finance.db

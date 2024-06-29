@@ -1,0 +1,41 @@
+body {
+    background-image: url('plant.jpg');
+    background-size: cover; /* Ensures the background image covers the entire page */
+    background-repeat: no-repeat; /* Prevents the background image from repeating */
+    background-position: center center; /* Centers the background image */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ensures the body takes up the full viewport height */
+    margin: 0; /* Removes default margin */
+    font-family: Arial, sans-serif; /* Optional: sets a default font for the page */
+}
+
+
+
+main {
+    flex: 1; /* Ensures main takes up remaining space between header and footer */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 400px; /* Limits the width of the container */
+    text-align: center; /* Centers the text inside the container */
+}
+
+
+.form-control {
+    margin-bottom: 10px;
+}
+
+.btn-primary {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.btn-link {
+    text-decoration: none;
+}

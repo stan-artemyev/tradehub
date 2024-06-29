@@ -1,0 +1,182 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Quoted
+{% endblock %}
+
+{% block main %}
+    <h2>
+        <b>{{ stock_data.symbol }}</b> ({{ stock_data.symbol_name }})
+    </h2>
+
+    <div class="d-inline-flex p-2">
+
+        <div class="mx-5">
+            
+            <div class="d-inline-flex align-items-center">
+                <h4 id="price">{{ stock_data.price }}</h4>
+                <p id="price_diff" class="mb-2 ms-2 me-1" style="color: {{ stock_data.price_diff_color }}">{{ stock_data.price_diff }}</p>
+                <p id="percentage_change" class="mb-2" style="color: {{ stock_data.price_diff_color }}">({{ stock_data.percentage_change }}%)</p>
+            </div>  
+            <p>As of <span id="current_time">{{ stock_data.current_time }}</span> <a href="#" onclick="refreshQuote('{{ stock_data.symbol }}'); return false;">Update</a></p>
+            Currently Market is: <b id="market">{{ stock_data.market }}</b>
+        </div>
+
+        <div class="mx-5">
+            <form id="tradeForm" action="trade" method="post">
+                <input type="hidden" name="symbol" id="symbol" value="{{ stock_data.symbol }}">
+                <div class="mb-3">
+                    <input class="form-control mx-auto w-auto" name="shares" placeholder="Amount of shares" type="number" min="1">
+                </div>
+                <div class="btn-group" role="group" aria-label="Buy/Sell">
+                    <button type="button" class="btn btn-success" onclick="setAction('buy')">Buy</button>
+                    <button type="button" class="btn btn-danger" onclick="setAction('sell')">Sell</button>
+                </div>
+            </form>            
+        </div>
+        
+    </div>
+
+    <div class="mt-2">
+        <h6>Available shares to sell: <b>{{ available_shares }}</b></h6>
+        <h6>Available cash: <b>{{ user_cash | usd }}</b></h6>
+    </div>    
+
+    <br>
+    <h4>Market details</h4>
+
+    <div class="container d-flex flex-row">        
+        <div class="container-sm pt-3">
+            <table class="table table-hover">          
+                <tbody>
+                    <tr>
+                        <th class="text-start">
+                            Previous Close
+                        </th>
+                        <td>
+                            {{ stock_data.previous_close }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-start">
+                            Open
+                        </th>
+                        <td>
+                            {{ stock_data.open_price }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-start">
+                            Bid
+                        </th>
+                        <td>
+                            <span id="bid_price">{{ stock_data.bid_price }}</span> x <span id="bid_size">{{ stock_data.bid_size }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-start">
+                            Ask
+                        </th>
+                        <td>
+                            <span id="ask_price">{{ stock_data.ask_price }}</span> x <span id="ask_size">{{ stock_data.ask_size }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-start">
+                            Day High
+                        </th>
+                        <td id="day_high">
+                            {{ stock_data.day_high }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-start">
+                            Day Low
+                        </th>
+                        <td id="day_low">
+                            {{ stock_data.day_low }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-start">
+                            Currency
+                        </th>
+                        <td>
+                            {{ stock_data.currency }}
+                        </td>
+                    </tr>                     
+                </tbody>
+            </table>
+        </div>
+
+        <div class="container-sm pt-3">
+            <table class="table table-hover">          
+                <tbody>
+                    <tr>
+                        <th class="text-start">
+                            Market Cap
+                        </th>
+                        <td id="market_cap">
+                            {{ stock_data.market_cap }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-start">
+                            P/E Ratio
+                        </th>
+                        <td id="pe">
+                            {{ stock_data.pe }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-start">
+                            52-week High
+                        </th>
+                        <td id="fifty_two_week_high">
+                            {{ stock_data.fifty_two_week_high }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-start">
+                            52-week Low
+                        </th>
+                        <td id="fifty_two_week_low">
+                            {{ stock_data.fifty_two_week_low }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-start">
+                            Volume
+                        </th>
+                        <td id="volume">
+                            {{ stock_data.volume }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-start">
+                            Average Volume
+                        </th>
+                        <td id="average_volume">
+                            {{ stock_data.average_volume }}
+                        </td>
+                    </tr>    
+                    <tr>
+                        <th class="text-start">
+                            Yield
+                        </th>
+                        <td id="yield">
+                            {{ stock_data.dividend_yield }}
+                        </td>
+                    </tr>                
+                </tbody>
+            </table>
+        </div>            
+    </div>
+
+    <!-- refreshQuote function that creates AJAX request to server to get updated stock data -->
+    <script src="/static/refreshQuote.js"></script>
+
+    <!-- Script that handles Trade stocks (Buy or Sell based on the button clicked)-->
+    <script src="/static/tradeForm.js"></script>
+
+{% endblock %}

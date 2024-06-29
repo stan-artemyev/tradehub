@@ -1,0 +1,95 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Portfolio
+{% endblock %}
+
+{% block main %}
+    <h2>Portfolio</h2>
+    <table class="table table-hover">
+        <thead class="table-danger">
+            <tr>
+                <th class="text-start">Name</th>
+                <th>Average price</th>
+                <th>Today's price</th>
+                <th>Total value</th>
+                <th>Performance</th>
+                <th class="text-center">Trade</th>
+                
+            </tr>
+        </thead>
+        <tbody>
+        <!-- Loop through the DB to display stocks in this table -->
+            {% for stock in stocks %}
+                <tr>
+                    <td class="text-start">
+                        <b>{{ stock.symbol }}</b>
+                        <p>{{ stock.symbol_name }}</p>
+                    </td>
+                    <td>
+                        <b>{{ stock.average_price | usd }}</b>
+                    </td>
+                    <td>
+                        <b>{{ stock.price | usd }}</b>
+                        <p class="{% if stock.percentage_change >= 0 %} text-success {% else %} text-danger {% endif %}">
+                            {% if stock.percentage_change > 0 %}+{% endif %}{{ stock.percentage_change }}%
+                        </p>
+                    </td>
+                    <td>
+                        <b>{{ stock.total | usd }}</b>
+                        <p>{{ stock.sum }} shares</p>
+                    </td>
+                    <td>
+                        <b>{{ stock.performance | usd }}</b>
+                        <p class="{% if stock.performance_percentage >= 0 %} text-success {% else %} text-danger {% endif %}">
+                            {% if stock.performance_percentage > 0 %}+{% endif %}{{ stock.performance_percentage }}%
+                    </td>                        
+                    <td style="text-align: center;">
+                        <form id="form-{{ stock.symbol }}" method="POST">
+                            <input type="hidden" name="symbol" value="{{ stock.symbol }}">
+                            <div class="m-1">
+                                <input class="form-control mx-auto w-75" name="shares" placeholder="Shares" type="number" min="1" id="shares-{{ stock.symbol }}">
+                            </div>
+                            <div class="btn-group" role="group" aria-label="Buy/Sell">
+                                <button type="button" class="btn btn-success" onclick="setAction('{{ stock.symbol }}', 'buy')">Buy</button>
+                                <button type="button" class="btn btn-danger" onclick="setAction('{{ stock.symbol }}', 'sell')">Sell</button>
+                            </div>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            <tr class="table-success">
+                <td class="text-start">
+                    <b>CASH</b>
+                </td>
+                <td></td>
+                <td></td>
+                <td>
+                    <b>{{ cash | usd }}</b>
+                </td>
+                <td></td>
+                <td></td>
+                </tr>
+            <tr class="table-primary">                
+                <td class="text-start align-middle">
+                    <b>TOTAL</b>
+                </td>
+                <td></td>
+                <td></td>
+                <td class="align-middle">
+                    <b>{{ total | usd }}</b>
+                </td>
+                <td>
+                    <b>{{ total_performance | usd}}</b>
+                    <p class="{% if total_performance_percentage >= 0 %} text-success {% else %} text-danger {% endif %}">
+                        {% if total_performance_percentage > 0 %}+{% endif %}{{ total_performance_percentage }}%
+                </td>
+                <td></td>                
+            </tr>
+        </tbody>
+    </table>
+
+    <!--Buy/Sell stocks available in portfolio script-->
+    <script src="/static/index.js"></script>
+{% endblock %}
+
