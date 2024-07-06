@@ -1,4 +1,4 @@
-# TradeHub
+# [TradeHub](https://tradehub.pythonanywhere.com)
 ## [TradeHub Demo](https://youtu.be/izLADZelsKo)
 ## Description
 TradeHub is my CS50 final project. It's an interactive stock trading simulator designed to provide users with a realistic stock market experience. Users can create accounts, simulate buying and selling stocks using real-time data, manage their finances, and track their portfolio performance — all without financial risk. This project is a web application that uses a combination of frontend and backend technologies to deliver a seamless user experience.
